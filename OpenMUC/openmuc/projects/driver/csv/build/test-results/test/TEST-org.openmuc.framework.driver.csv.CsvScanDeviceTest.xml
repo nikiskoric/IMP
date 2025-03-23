@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.driver.csv.CsvScanDeviceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:43:09" hostname="TEA" time="0.02">
+  <properties/>
+  <testcase name="testChannelScan()" classname="org.openmuc.framework.driver.csv.CsvScanDeviceTest" time="0.007"/>
+  <testcase name="testDeviceScan()" classname="org.openmuc.framework.driver.csv.CsvScanDeviceTest" time="0.012"/>
+  <system-out><![CDATA[11:43:09.323 [Test worker] INFO org.openmuc.framework.driver.csv.CsvDriver - Device connected: C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\csv/src/test/resources/test_data.csv
+11:43:09.323 [Test worker] INFO org.openmuc.framework.driver.csv.CsvDeviceConnection - Scan for channels called. Settings: 
+Channel: power_grid
+Channel: hhmmss
+Channel: unixtimestamp
+Channel: power_photovoltaics
+Channel: YYYYMMDD
+Channel: power_electic_vehicle
+Channel: power_heatpump
+11:43:09.330 [Test worker] INFO org.openmuc.framework.driver.csv.CsvDriver - Scan for CSV files. Settings: path=C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\csv/src/test/resources
+Scan progress: 8 %
+Scan progress: 16 %
+Scan progress: 25 %
+Scan progress: 33 %
+Scan progress: 41 %
+Scan progress: 50 %
+
+DeviceScanInfo:
+  ID: csv_device_6
+  DeviceAddress: C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\csv\src\test\resources\home1.csv
+  Settings: samplingmode=line
+  Description: home1.csv
+Scan progress: 58 %
+Scan progress: 66 %
+Scan progress: 75 %
+
+DeviceScanInfo:
+  ID: csv_device_9
+  DeviceAddress: C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\csv\src\test\resources\test_data.csv
+  Settings: samplingmode=line
+  Description: test_data.csv
+Scan progress: 83 %
+
+DeviceScanInfo:
+  ID: csv_device_10
+  DeviceAddress: C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\csv\src\test\resources\test_data_no_hhmmss.csv
+  Settings: samplingmode=line
+  Description: test_data_no_hhmmss.csv
+Scan progress: 91 %
+
+DeviceScanInfo:
+  ID: csv_device_11
+  DeviceAddress: C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\csv\src\test\resources\test_data_no_unixtimestamp.csv
+  Settings: samplingmode=line
+  Description: test_data_no_unixtimestamp.csv
+Scan progress: 100 %
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

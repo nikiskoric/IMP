@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EhzDriver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-ehz</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.ehz</a> &gt; <span class="el_source">EhzDriver.java</span></div><h1>EhzDriver.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.driver.ehz;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.DriverInfo;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.openmuc.framework.driver.spi.DriverService;
+import org.openmuc.jrxtx.SerialPortBuilder;
+import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component
+<span class="nc" id="L42">public class EhzDriver implements DriverService {</span>
+
+    public static final String ID = &quot;ehz&quot;;
+
+<span class="nc" id="L46">    private static Logger logger = LoggerFactory.getLogger(EhzDriver.class);</span>
+
+    private static final String ADDR_IEC = &quot;iec&quot;;
+    private static final String ADDR_SML = &quot;sml&quot;;
+
+<span class="nc" id="L51">    private boolean interruptScan = false;</span>
+
+<span class="nc" id="L53">    private static final DriverInfo info = new DriverInfo(ID,</span>
+            // description
+            &quot;Driver for IEC 62056-21 and SML.&quot;,
+            // device address
+            &quot;iec://&lt;serial_device&gt; or sml://&lt;serial_device&gt; e.g.: sml:///dev/ttyUSB0 or sml://COM3&quot;,
+            // parameters
+            &quot;N.A.&quot;,
+            // channel address
+            &quot;e.g.: 0100010800FF&quot;,
+            // device scan settings
+            &quot;N.A.&quot;);
+
+    @Override
+    public DriverInfo getInfo() {
+<span class="nc" id="L67">        return info;</span>
+    }
+
+    @Override
+    public void scanForDevices(String settings, DriverDeviceScanListener listener)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+
+<span class="nc" id="L74">        String[] serialPortNames = SerialPortBuilder.getSerialPortNames();</span>
+
+<span class="nc" id="L76">        double i = 0;</span>
+<span class="nc" id="L77">        int progress = 0;</span>
+<span class="nc" id="L78">        int numberOfPorts = serialPortNames.length;</span>
+<span class="nc" id="L79">        interruptScan = false;</span>
+
+<span class="nc" id="L81">        listener.scanProgressUpdate(progress);</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (String spName : serialPortNames) {</span>
+<span class="nc" id="L84">            logger.trace(&quot;Searching for device at {}&quot;, spName);</span>
+            URI deviceAddress;
+            try {
+<span class="nc" id="L87">                deviceAddress = checkForIEC(spName);</span>
+<span class="nc" id="L88">            } catch (ConnectionException | URISyntaxException e) {</span>
+<span class="nc" id="L89">                logger.trace(&quot;{} is no IEC 62056-21 device&quot;, spName);</span>
+<span class="nc" id="L90">                continue;</span>
+<span class="nc" id="L91">            }</span>
+<span class="nc" id="L92">            addDevice(listener, spName, deviceAddress);</span>
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (interruptScan) {</span>
+<span class="nc" id="L95">                return;</span>
+            }
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (deviceAddress == null) {</span>
+<span class="nc" id="L99">                updateProgress(listener, i + 0.5, numberOfPorts);</span>
+<span class="nc" id="L100">                deviceAddress = checkForSML(spName, deviceAddress);</span>
+            }
+<span class="nc" id="L102">            addDevice(listener, spName, deviceAddress);</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (interruptScan) {</span>
+<span class="nc" id="L105">                return;</span>
+            }
+<span class="nc" id="L107">            updateProgress(listener, ++i, numberOfPorts);</span>
+        }
+<span class="nc" id="L109">    }</span>
+
+    private void updateProgress(DriverDeviceScanListener listener, double i, int numberOfPorts) {
+<span class="nc" id="L112">        int progress = (int) (i * 100) / numberOfPorts;</span>
+<span class="nc" id="L113">        listener.scanProgressUpdate(progress);</span>
+<span class="nc" id="L114">    }</span>
+
+    private void addDevice(DriverDeviceScanListener listener, String spName, URI deviceAddress) {
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (deviceAddress != null) {</span>
+<span class="nc" id="L118">            listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), &quot;&quot;, &quot;&quot;));</span>
+        }
+        else {
+<span class="nc" id="L121">            logger.info(&quot;No ehz device found at {}&quot;, spName);</span>
+        }
+<span class="nc" id="L123">    }</span>
+
+    private URI checkForSML(String spName, URI deviceAddress) {
+        GeneralConnection connection;
+        try {
+<span class="nc" id="L128">            connection = new SmlConnection(spName);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (connection.works()) {</span>
+<span class="nc" id="L130">                logger.info(&quot;Found sml device at {}&quot;, spName);</span>
+<span class="nc" id="L131">                deviceAddress = new URI(ADDR_SML + &quot;://&quot; + spName);</span>
+            }
+<span class="nc" id="L133">            connection.disconnect();</span>
+<span class="nc" id="L134">        } catch (ConnectionException | URISyntaxException e) {</span>
+<span class="nc" id="L135">            logger.trace(&quot;{} is no SML device&quot;, spName);</span>
+<span class="nc" id="L136">        }</span>
+<span class="nc" id="L137">        return deviceAddress;</span>
+    }
+
+    private URI checkForIEC(String spName) throws ConnectionException, URISyntaxException {
+<span class="nc" id="L141">        URI deviceAddress = null;</span>
+<span class="nc" id="L142">        GeneralConnection connection = new IecConnection(spName, 2000);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (connection.works()) {</span>
+<span class="nc" id="L144">            logger.info(&quot;Found iec device at {}&quot;, spName);</span>
+<span class="nc" id="L145">            deviceAddress = new URI(ADDR_IEC + &quot;://&quot; + spName);</span>
+        }
+<span class="nc" id="L147">        connection.disconnect();</span>
+
+<span class="nc" id="L149">        return deviceAddress;</span>
+    }
+
+    @Override
+    public void interruptDeviceScan() throws UnsupportedOperationException {
+<span class="nc" id="L154">        interruptScan = true;</span>
+<span class="nc" id="L155">    }</span>
+
+    @Override
+    public Connection connect(String deviceAddress, String settings)
+            throws ArgumentSyntaxException, ConnectionException {
+<span class="nc" id="L160">        logger.trace(&quot;Trying to connect to {}&quot;, deviceAddress);</span>
+        try {
+<span class="nc" id="L162">            URI device = new URI(deviceAddress);</span>
+
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (device.getScheme().equals(ADDR_IEC)) {</span>
+<span class="nc" id="L165">                logger.trace(&quot;Connecting to iec device&quot;);</span>
+<span class="nc" id="L166">                return new IecConnection(device.getPath(), GeneralConnection.TIMEOUT);</span>
+            }
+<span class="nc bnc" id="L168" title="All 2 branches missed.">            else if (device.getScheme().equals(ADDR_SML)) {</span>
+<span class="nc" id="L169">                logger.trace(&quot;Connecting to sml device&quot;);</span>
+<span class="nc" id="L170">                return new SmlConnection(device.getPath());</span>
+            }
+<span class="nc" id="L172">            throw new ConnectionException(&quot;Unrecognized address scheme &quot; + device.getScheme());</span>
+<span class="nc" id="L173">        } catch (URISyntaxException e) {</span>
+<span class="nc" id="L174">            throw new ConnectionException(e);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

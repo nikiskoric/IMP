@@ -1,0 +1,66 @@
+}11:42:28.290 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttBufferHandler - move buffered messages from RAM to file
+£11:42:28.298 [Test worker] INFO org.openmuc.framework.lib.filePersistence.FilePersistence - create new file: C:\tmp\openmuc\buffer_handler_test\test\buffer.0.log
+x11:42:28.320 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+´11:42:28.322 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='localhost', port=123, user=<none>, hasPassword=false}
+†11:42:28.348 [Test worker] DEBUG io.netty.util.internal.logging.InternalLoggerFactory - Using SLF4J as the default logging framework
+\11:42:28.348 [Test worker] DEBUG io.netty.util.NetUtil - -Djava.net.preferIPv4Stack: false
+`11:42:28.348 [Test worker] DEBUG io.netty.util.NetUtil - -Djava.net.preferIPv6Addresses: false
+‹11:42:28.550 [Test worker] DEBUG io.netty.util.NetUtilInitializations - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+i11:42:28.586 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false
+_11:42:28.587 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - Java version: 11
+s11:42:28.588 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.theUnsafe: available
+t11:42:28.590 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.copyMemory: available
+t11:42:28.591 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.storeFence: available
+q11:42:28.592 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.Buffer.address: available
+ž11:42:28.593 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
+w11:42:28.594 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.Bits.unaligned: available, true
+à11:42:28.595 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @59f99ea
+Ž11:42:28.600 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.DirectByteBuffer.<init>(long, {int,long}): unavailable
+h11:42:28.600 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - sun.misc.Unsafe: available
+v11:42:28.627 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - maxDirectMemory: 536870912 bytes (maybe)
+“11:42:28.627 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.tmpdir: C:\Users\tdmar\AppData\Local\Temp (java.io.tmpdir)
+z11:42:28.628 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+_11:42:28.628 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - Platform: Windows
+r11:42:28.629 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.maxDirectMemory: -1 bytes
+‚11:42:28.629 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.uninitializedArrayAllocationThreshold: -1
+q11:42:28.631 [Test worker] DEBUG io.netty.util.internal.CleanerJava9 - java.nio.ByteBuffer.cleaner(): available
+n11:42:28.632 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.noPreferDirect: false
+’11:42:28.634 [Test worker] DEBUG io.netty.util.NetUtil - Failed to get SOMAXCONN from sysctl and file \proc\sys\net\core\somaxconn. Default: 200
+	³11:42:28.636 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='1.2.3.4', port=5678, user=<none>, hasPassword=false}
+]11:42:33.794 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy set
+x11:42:33.797 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+±11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks4, hostname='host', port=123, user=<none>, hasPassword=false}
+±11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks5, hostname='host', port=123, user=<none>, hasPassword=false}
+¯11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='host', port=123, user=<none>, hasPassword=false}
+¬11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='host', port=123, user=user, hasPassword=true}
+½11:42:33.802 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks4, hostname='154.12.253.232', port=40616, user=<none>, hasPassword=false}
+»11:42:33.804 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks5, hostname='64.187.232.70', port=2277, user=<none>, hasPassword=false}
+x11:42:33.805 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+¯11:42:33.805 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='localhost', port=123, user=me, hasPassword=true}
+«11:42:33.807 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='utini', port=42, user=foo, hasPassword=true}
+g11:42:33.820 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Applied proxy settings
+x11:42:33.919 [Test worker] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] connected to broker UNKNOWN:UNKNOWN
+s11:42:33.920 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing memory (RAM) buffer.
+r11:42:33.920 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Memory buffer already empty.
+o11:42:33.922 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty memory buffer done.
+k11:42:33.922 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing file buffer.
+m11:42:33.927 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty file buffer done.
+[11:42:34.104 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttWriter - Disconnected
+‚11:42:34.112 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] Connection lost: broker 'test'. Cause: 'test'
+‡11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+‡11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+‡11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+‡11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+}11:42:34.113 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttBufferHandler - move buffered messages from RAM to file
+¢11:42:34.113 [Test worker] INFO org.openmuc.framework.lib.filePersistence.FilePersistence - create new file: C:\tmp\openmuc\mqtt_writer_test\topic1\buffer.0.log
+‡11:42:34.116 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+‡11:42:34.116 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+‡11:42:34.116 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+}11:42:34.116 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttBufferHandler - move buffered messages from RAM to file
+Ô11:42:34.117 [Test worker] INFO org.openmuc.framework.lib.filePersistence.FilePersistence - move file from: \tmp\openmuc\mqtt_writer_test\topic1\buffer.0.log to \tmp\openmuc\mqtt_writer_test\topic1\buffer.1.log
+‡11:42:34.119 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+x11:42:34.119 [Test worker] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] connected to broker UNKNOWN:UNKNOWN
+s11:42:34.121 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing memory (RAM) buffer.
+o11:42:34.136 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty memory buffer done.
+k11:42:34.136 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing file buffer.
+m11:42:34.151 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty file buffer done.

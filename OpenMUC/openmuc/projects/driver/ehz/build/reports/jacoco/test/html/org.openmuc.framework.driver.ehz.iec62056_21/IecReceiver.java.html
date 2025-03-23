@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IecReceiver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-ehz</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.ehz.iec62056_21</a> &gt; <span class="el_source">IecReceiver.java</span></div><h1>IecReceiver.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.driver.ehz.iec62056_21;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+
+import org.openmuc.jrxtx.DataBits;
+import org.openmuc.jrxtx.Parity;
+import org.openmuc.jrxtx.SerialPort;
+import org.openmuc.jrxtx.SerialPortBuilder;
+import org.openmuc.jrxtx.StopBits;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class IecReceiver {
+
+<span class="nc" id="L38">    private static Logger logger = LoggerFactory.getLogger(IecReceiver.class);</span>
+    // public static final int PROTOCOL_NORMAL = 0;
+    // public static final int PROTOCOL_SECONDARY = 1;
+    // public static final int PROTOCOL_HDLC = 2;
+    //
+    // public static final int MODE_DATA_READOUT = 0;
+    // public static final int MODE_PROGRAMMING = 1;
+    // public static final int MODE_BINARY_HDLC = 2;,
+
+    private SerialPort serialPort;
+<span class="nc" id="L48">    private final byte[] msgBuffer = new byte[10000];</span>
+<span class="nc" id="L49">    private final byte[] inputBuffer = new byte[2000];</span>
+    private final DataInputStream inStream;
+
+    private class Timeout extends Thread {
+        private final long time;
+        private boolean end;
+
+<span class="nc" id="L56">        public Timeout(long msTimeout) {</span>
+<span class="nc" id="L57">            time = msTimeout;</span>
+<span class="nc" id="L58">            end = false;</span>
+<span class="nc" id="L59">        }</span>
+
+        @Override
+        public void run() {
+            try {
+<span class="nc" id="L64">                Thread.sleep(time);</span>
+<span class="nc" id="L65">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L66">            }</span>
+<span class="nc" id="L67">            end = true;</span>
+<span class="nc" id="L68">            return;</span>
+        }
+
+        public boolean isEnd() {
+<span class="nc" id="L72">            return end;</span>
+        }
+    }
+
+<span class="nc" id="L76">    public IecReceiver(String iface) throws IOException {</span>
+<span class="nc" id="L77">        this.serialPort = SerialPortBuilder.newBuilder(iface)</span>
+<span class="nc" id="L78">                .setBaudRate(9600)</span>
+<span class="nc" id="L79">                .setDataBits(DataBits.DATABITS_7)</span>
+<span class="nc" id="L80">                .setStopBits(StopBits.STOPBITS_1)</span>
+<span class="nc" id="L81">                .setParity(Parity.EVEN)</span>
+<span class="nc" id="L82">                .build();</span>
+
+<span class="nc" id="L84">        inStream = new DataInputStream(serialPort.getInputStream());</span>
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (inStream.available() &gt; 0) {</span>
+<span class="nc" id="L87">            inStream.skip(inStream.available());</span>
+        }
+        try {
+<span class="nc" id="L90">            Thread.sleep(100);</span>
+<span class="nc" id="L91">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L92">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L93">        }</span>
+
+<span class="nc" id="L95">    }</span>
+
+    public byte[] receiveMessage(long msTimeout) throws IOException {
+<span class="nc" id="L98">        Timeout time = new Timeout(msTimeout);</span>
+<span class="nc" id="L99">        time.start();</span>
+
+<span class="nc" id="L101">        int bufferIndex = 0;</span>
+<span class="nc" id="L102">        boolean start = false;</span>
+<span class="nc" id="L103">        boolean end = false;</span>
+<span class="nc" id="L104">        inStream.skip(inStream.available()); // inStream to current state</span>
+
+        do {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (inStream.available() &gt; 0) {</span>
+<span class="nc" id="L108">                int read = inStream.read(inputBuffer);</span>
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                for (int i = 0; i &lt; read; i++) {</span>
+<span class="nc" id="L111">                    byte input = inputBuffer[i];</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">                    if (!start &amp;&amp; input == '/') {</span>
+<span class="nc" id="L113">                        start = true;</span>
+<span class="nc" id="L114">                        bufferIndex = 0;</span>
+                    }
+<span class="nc" id="L116">                    msgBuffer[bufferIndex] = input;</span>
+<span class="nc" id="L117">                    bufferIndex++;</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">                    if (input == '!' &amp;&amp; start) {</span>
+<span class="nc" id="L119">                        end = true;</span>
+                    }
+                }
+            }
+<span class="nc bnc" id="L123" title="All 4 branches missed.">            if (end &amp;&amp; start) {</span>
+<span class="nc" id="L124">                break;</span>
+            }
+
+            try {
+<span class="nc" id="L128">                Thread.sleep(50);</span>
+<span class="nc" id="L129">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L130">                Thread.currentThread().interrupt();</span>
+<span class="nc" id="L131">            }</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        } while (!time.isEnd());</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (time.isEnd()) {</span>
+<span class="nc" id="L135">            throw new InterruptedIOException(&quot;Timeout&quot;);</span>
+        }
+
+<span class="nc" id="L138">        byte[] frame = new byte[bufferIndex];</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        for (int i = 0; i &lt; bufferIndex; i++) {</span>
+<span class="nc" id="L141">            frame[i] = msgBuffer[i];</span>
+        }
+
+<span class="nc" id="L144">        return frame;</span>
+    }
+
+    public void changeBaudrate(int baudrate) {
+        try {
+<span class="nc" id="L149">            logger.debug(&quot;Change baudrate to: {}.&quot;, baudrate);</span>
+
+<span class="nc" id="L151">            this.serialPort.setBaudRate(baudrate);</span>
+<span class="nc" id="L152">        } catch (IOException e) {</span>
+<span class="nc" id="L153">            logger.warn(&quot;Failed to change the baud rate.&quot;, e);</span>
+<span class="nc" id="L154">        }</span>
+<span class="nc" id="L155">    }</span>
+
+    public void close() {
+        try {
+<span class="nc" id="L159">            serialPort.close();</span>
+<span class="nc" id="L160">        } catch (IOException e) {</span>
+<span class="nc" id="L161">            logger.warn(&quot;Failed to close the serial port properly.&quot;, e);</span>
+<span class="nc" id="L162">        }</span>
+<span class="nc" id="L163">        serialPort = null;</span>
+<span class="nc" id="L164">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

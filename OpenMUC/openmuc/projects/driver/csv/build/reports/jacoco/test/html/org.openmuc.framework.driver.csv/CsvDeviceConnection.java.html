@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CsvDeviceConnection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-csv</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.csv</a> &gt; <span class="el_source">CsvDeviceConnection.java</span></div><h1>CsvDeviceConnection.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.csv;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.driver.csv.channel.ChannelFactory;
+import org.openmuc.framework.driver.csv.channel.CsvChannel;
+import org.openmuc.framework.driver.csv.exceptions.CsvException;
+import org.openmuc.framework.driver.csv.exceptions.EmptyChannelAddressException;
+import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
+import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
+import org.openmuc.framework.driver.csv.settings.DeviceSettings;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ChannelValueContainer;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class CsvDeviceConnection implements Connection {
+
+<span class="fc" id="L56">    private static final Logger logger = LoggerFactory.getLogger(CsvDeviceConnection.class);</span>
+    /**
+     * Map containing 'column name' as key and 'list of all column data' as value
+     */
+    private final Map&lt;String, List&lt;String&gt;&gt; data;
+    private final DeviceSettings settings;
+    private final Supplier&lt;Long&gt; currentMillisSupplier;
+    /**
+     * Map holds all data of the csv file
+     */
+<span class="fc" id="L66">    private HashMap&lt;String, CsvChannel&gt; channelMap = new HashMap&lt;&gt;();</span>
+
+    public CsvDeviceConnection(String deviceAddress, String deviceSettings)
+            throws ConnectionException, ArgumentSyntaxException {
+<span class="pc" id="L70">        this(deviceAddress, deviceSettings, () -&gt; System.currentTimeMillis());</span>
+<span class="fc" id="L71">    }</span>
+
+    private CsvDeviceConnection(String deviceAddress, String deviceSettings, Supplier&lt;Long&gt; currentMillisSupplier)
+<span class="fc" id="L74">            throws ConnectionException, ArgumentSyntaxException {</span>
+<span class="fc" id="L75">        settings = new DeviceSettings(deviceSettings);</span>
+<span class="fc" id="L76">        data = CsvFileReader.readCsvFile(deviceAddress);</span>
+<span class="fc" id="L77">        channelMap = ChannelFactory.createChannelMap(data, settings);</span>
+<span class="fc" id="L78">        this.currentMillisSupplier = currentMillisSupplier;</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * FOR TESTING ONLY (unless timeprovider is {@link System#currentTimeMillis()} )
+     */
+    @Deprecated
+    static CsvDeviceConnection forTesting(String deviceAddress, String deviceSettings,
+            Supplier&lt;Long&gt; currentMillisSupplier) throws ConnectionException, ArgumentSyntaxException {
+<span class="nc" id="L87">        logger.warn(&quot;USING {} IN TESTING MODE&quot;, CsvDeviceConnection.class.getName());</span>
+<span class="nc" id="L88">        return new CsvDeviceConnection(deviceAddress, deviceSettings, currentMillisSupplier);</span>
+    }
+
+    @Override
+
+    public List&lt;ChannelScanInfo&gt; scanForChannels(String settings)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
+
+<span class="fc" id="L96">        logger.info(&quot;Scan for channels called. Settings: &quot; + settings);</span>
+
+<span class="fc" id="L98">        List&lt;ChannelScanInfo&gt; channels = new ArrayList&lt;&gt;();</span>
+        String channelId;
+<span class="fc" id="L100">        Iterator&lt;String&gt; keys = data.keySet().iterator();</span>
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        while (keys.hasNext()) {</span>
+<span class="fc" id="L103">            channelId = keys.next();</span>
+<span class="fc" id="L104">            final ChannelScanInfo channel = new ChannelScanInfo(channelId, channelId, ValueType.DOUBLE, null);</span>
+<span class="fc" id="L105">            channels.add(channel);</span>
+<span class="fc" id="L106">        }</span>
+
+<span class="fc" id="L108">        return channels;</span>
+    }
+
+    @Override
+    public Object read(List&lt;ChannelRecordContainer&gt; containers, Object containerListHandle, String samplingGroup)
+            throws UnsupportedOperationException, ConnectionException {
+
+<span class="fc" id="L115">        long samplingTime = System.currentTimeMillis();</span>
+<span class="fc" id="L116">        return read(containers, containerListHandle, samplingGroup, samplingTime);</span>
+    }
+
+    public Object read(List&lt;ChannelRecordContainer&gt; containers, Object containerListHandle, String samplingGroup,
+            long samplingTime) throws UnsupportedOperationException, ConnectionException {
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        for (ChannelRecordContainer container : containers) {</span>
+            try {
+<span class="fc" id="L124">                CsvChannel channel = getCsvChannel(container);</span>
+<span class="fc" id="L125">                String valueAsString = channel.readValue(samplingTime);</span>
+
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">                if (container.getChannel().getValueType().equals(ValueType.STRING)) {</span>
+<span class="fc" id="L128">                    container.setRecord(new Record(new StringValue(valueAsString), samplingTime, Flag.VALID));</span>
+                }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                else if (container.getChannel().getValueType().equals(ValueType.BYTE_ARRAY)) {</span>
+<span class="nc" id="L131">                    container.setRecord(new Record(new ByteArrayValue(valueAsString), samplingTime, Flag.VALID));</span>
+                }
+                else {
+                    // in all other cases try parsing as double
+<span class="nc" id="L135">                    double value = Double.parseDouble(valueAsString);</span>
+<span class="nc" id="L136">                    container.setRecord(new Record(new DoubleValue(value), samplingTime, Flag.VALID));</span>
+                }
+
+<span class="fc" id="L139">            } catch (EmptyChannelAddressException e) {</span>
+<span class="fc" id="L140">                logger.warn(&quot;EmptyChannelAddressException: {}&quot;, e.getMessage());</span>
+<span class="fc" id="L141">                container.setRecord(new Record(new DoubleValue(Double.NaN), samplingTime,</span>
+                        Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));
+
+<span class="fc" id="L144">            } catch (NoValueReceivedYetException e) {</span>
+<span class="fc" id="L145">                logger.warn(&quot;NoValueReceivedYetException: {}&quot;, e.getMessage());</span>
+<span class="fc" id="L146">                container.setRecord(new Record(new DoubleValue(Double.NaN), samplingTime, Flag.NO_VALUE_RECEIVED_YET));</span>
+
+<span class="fc" id="L148">            } catch (TimeTravelException e) {</span>
+<span class="fc" id="L149">                logger.warn(&quot;TimeTravelException: {}&quot;, e.getMessage());</span>
+<span class="fc" id="L150">                container.setRecord(</span>
+<span class="fc" id="L151">                        new Record(new DoubleValue(Double.NaN), samplingTime, Flag.DRIVER_ERROR_READ_FAILURE));</span>
+
+<span class="nc" id="L153">            } catch (CsvException e) {</span>
+<span class="nc" id="L154">                logger.error(&quot;CsvException: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L155">                container.setRecord(</span>
+<span class="nc" id="L156">                        new Record(new DoubleValue(Double.NaN), samplingTime, Flag.DRIVER_THREW_UNKNOWN_EXCEPTION));</span>
+<span class="fc" id="L157">            }</span>
+<span class="fc" id="L158">        }</span>
+
+<span class="fc" id="L160">        return null;</span>
+    }
+
+    private CsvChannel getCsvChannel(ChannelRecordContainer container) throws EmptyChannelAddressException {
+
+<span class="fc" id="L165">        String channelAddress = container.getChannelAddress();</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (channelAddress.isEmpty()) {</span>
+<span class="fc" id="L167">            throw new EmptyChannelAddressException(&quot;No ChannelAddress for channel &quot; + container.getChannel().getId());</span>
+        }
+
+<span class="fc" id="L170">        CsvChannel mappedChannelAddress = channelMap.get(channelAddress);</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (mappedChannelAddress == null) {</span>
+<span class="fc" id="L172">            throw new EmptyChannelAddressException(&quot;Invalid Channel Address: &quot; + channelAddress);</span>
+        }
+
+<span class="fc" id="L175">        return mappedChannelAddress;</span>
+    }
+
+    @Override
+    public void startListening(List&lt;ChannelRecordContainer&gt; containers, RecordsReceivedListener listener)
+            throws UnsupportedOperationException, ConnectionException {
+<span class="nc" id="L181">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public Object write(List&lt;ChannelValueContainer&gt; containers, Object containerListHandle)
+            throws UnsupportedOperationException, ConnectionException {
+<span class="nc" id="L187">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public void disconnect() {
+        // nothing to do here, no open file stream since complete file is read during connection.
+<span class="nc" id="L193">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

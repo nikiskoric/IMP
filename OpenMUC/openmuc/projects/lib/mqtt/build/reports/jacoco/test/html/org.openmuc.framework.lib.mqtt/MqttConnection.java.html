@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MqttConnection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-lib-mqtt</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.lib.mqtt</a> &gt; <span class="el_source">MqttConnection.java</span></div><h1>MqttConnection.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.lib.mqtt;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.openmuc.framework.security.SslManagerInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hivemq.client.mqtt.MqttClientSslConfig;
+import com.hivemq.client.mqtt.MqttClientTransportConfig;
+import com.hivemq.client.mqtt.MqttClientTransportConfigBuilder;
+import com.hivemq.client.mqtt.datatypes.MqttClientIdentifier;
+import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedListener;
+import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedListener;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3Client;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3ClientBuilder;
+import com.hivemq.client.mqtt.mqtt3.message.connect.Mqtt3Connect;
+import com.hivemq.client.mqtt.mqtt3.message.connect.Mqtt3ConnectBuilder;
+
+/**
+ * Represents a connection to a MQTT broker
+ */
+public class MqttConnection {
+<span class="fc" id="L53">    private static final Logger logger = LoggerFactory.getLogger(MqttConnection.class);</span>
+    private final MqttSettings settings;
+
+<span class="nc" id="L56">    private final List&lt;MqttClientConnectedListener&gt; connectedListeners = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L57">    private final List&lt;MqttClientDisconnectedListener&gt; disconnectedListeners = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L59">    private boolean sslReady = false;</span>
+
+    private Mqtt3ClientBuilder clientBuilder;
+    private Mqtt3AsyncClient client;
+
+<span class="nc" id="L64">    private SslManagerInterface sslManager = null;</span>
+
+<span class="nc" id="L66">    private Timer connectionWatch = new Timer();</span>
+
+    /**
+     * A connection to a MQTT broker
+     *
+     * @param settings
+     *            connection details {@link MqttSettings}
+     */
+<span class="nc" id="L74">    public MqttConnection(MqttSettings settings) {</span>
+<span class="nc" id="L75">        this.settings = settings;</span>
+<span class="nc" id="L76">        logger.trace(&quot;Init with settings {}&quot;, settings);</span>
+<span class="nc" id="L77">        clientBuilder = getClientBuilder();</span>
+<span class="nc" id="L78">        client = buildClient();</span>
+<span class="nc" id="L79">        addDisconnectedListener(context -&gt; {</span>
+<span class="nc" id="L80">            logger.debug(&quot;Disconnection (UUID={}) cause: {} / source {}. Will reconnect: {}&quot;,</span>
+<span class="nc" id="L81">                    context.getClientConfig().getClientIdentifier().map(MqttClientIdentifier::toString).orElse(&quot;none&quot;),</span>
+<span class="nc" id="L82">                    context.getCause(), context.getSource(), context.getReconnector().isReconnect());</span>
+<span class="nc" id="L83">        });</span>
+<span class="nc" id="L84">        addConnectedListener(context -&gt; logger.debug(&quot;Reconnected (UUID={})&quot;,</span>
+<span class="nc" id="L85">                context.getClientConfig().getClientIdentifier().map(MqttClientIdentifier::toString).orElse(&quot;none&quot;)));</span>
+<span class="nc" id="L86">    }</span>
+
+    private Mqtt3ClientBuilder getClientBuilder() {
+<span class="nc" id="L89">        Mqtt3ClientBuilder clientBuilder = Mqtt3Client.builder()</span>
+<span class="nc" id="L90">                .identifier(UUID.randomUUID().toString())</span>
+<span class="nc" id="L91">                .automaticReconnect()</span>
+<span class="nc" id="L92">                .initialDelay(settings.getConnectionRetryInterval(), TimeUnit.SECONDS)</span>
+<span class="nc" id="L93">                .maxDelay(settings.getConnectionRetryInterval(), TimeUnit.SECONDS)</span>
+<span class="nc" id="L94">                .applyAutomaticReconnect();</span>
+<span class="nc" id="L95">        MqttClientTransportConfigBuilder transportConfigBuilder = getTransportConfig();</span>
+        final MqttClientTransportConfig transportConfig;
+<span class="nc bnc" id="L97" title="All 4 branches missed.">        if (settings.isSsl() &amp;&amp; sslManager != null) {</span>
+<span class="nc" id="L98">            transportConfig = addSslConfig(transportConfigBuilder).build();</span>
+        }
+        else {
+<span class="nc" id="L101">            transportConfig = transportConfigBuilder.build();</span>
+        }
+<span class="nc" id="L103">        clientBuilder.transportConfig(transportConfig);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (settings.isWebSocket()) {</span>
+<span class="nc" id="L105">            clientBuilder.webSocketWithDefaultConfig();</span>
+        }
+<span class="nc" id="L107">        return clientBuilder;</span>
+    }
+
+    private MqttClientTransportConfigBuilder getTransportConfig() {
+<span class="nc" id="L111">        MqttClientTransportConfigBuilder transportConfigBuilder = MqttClientTransportConfig.builder();</span>
+<span class="nc" id="L112">        settings.applyProxy(transportConfigBuilder);</span>
+<span class="nc" id="L113">        return transportConfigBuilder.serverHost(settings.getHost())</span>
+<span class="nc" id="L114">                .serverPort(settings.getPort())</span>
+<span class="nc" id="L115">                .localPort(settings.getLocalPort())</span>
+<span class="nc" id="L116">                .localAddress(settings.getLocalAddress());</span>
+    }
+
+    private Mqtt3AsyncClient buildClient() {
+<span class="nc" id="L120">        return clientBuilder.buildAsync();</span>
+    }
+
+    private MqttClientTransportConfigBuilder addSslConfig(MqttClientTransportConfigBuilder transportConfigBuilder) {
+<span class="nc" id="L124">        MqttClientSslConfig sslConfig = MqttClientSslConfig.builder()</span>
+<span class="nc" id="L125">                .keyManagerFactory(sslManager.getKeyManagerFactory())</span>
+<span class="nc" id="L126">                .trustManagerFactory(sslManager.getTrustManagerFactory())</span>
+<span class="nc" id="L127">                .handshakeTimeout(10, TimeUnit.SECONDS)</span>
+<span class="nc" id="L128">                .build();</span>
+<span class="nc" id="L129">        transportConfigBuilder.sslConfig(sslConfig);</span>
+<span class="nc" id="L130">        return transportConfigBuilder;</span>
+    }
+
+    public boolean isReady() {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (settings.isSsl()) {</span>
+<span class="nc" id="L135">            return sslReady;</span>
+        }
+<span class="nc" id="L137">        return true;</span>
+    }
+
+    // TODO: tests for both cases: ssl is set up first and also second!
+    private void sslUpdate() {
+<span class="nc" id="L142">        logger.warn(&quot;SSL configuration changed, reconnecting.&quot;);</span>
+<span class="nc" id="L143">        sslReady = true;</span>
+<span class="nc" id="L144">        client.disconnect().whenComplete((ack, e) -&gt; {</span>
+<span class="nc" id="L145">            clientBuilder.transportConfig(addSslConfig(getTransportConfig()).build());</span>
+<span class="nc" id="L146">            clientBuilder.identifier(UUID.randomUUID().toString());</span>
+<span class="nc" id="L147">            connect();</span>
+<span class="nc" id="L148">        });</span>
+<span class="nc" id="L149">    }</span>
+
+    private Mqtt3Connect getConnect() {
+<span class="nc" id="L152">        Mqtt3ConnectBuilder connectBuilder = Mqtt3Connect.builder();</span>
+<span class="nc" id="L153">        connectBuilder.keepAlive(settings.getConnectionAliveInterval());</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (settings.isLastWillSet()) {</span>
+<span class="nc" id="L155">            connectBuilder.willPublish()</span>
+<span class="nc" id="L156">                    .topic(settings.getLastWillTopic())</span>
+<span class="nc" id="L157">                    .payload(settings.getLastWillPayload())</span>
+<span class="nc" id="L158">                    .applyWillPublish();</span>
+        }
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (settings.getUsername() != null) {</span>
+<span class="nc" id="L161">            connectBuilder.simpleAuth()</span>
+<span class="nc" id="L162">                    .username(settings.getUsername())</span>
+<span class="nc" id="L163">                    .password(settings.getPassword().getBytes())</span>
+<span class="nc" id="L164">                    .applySimpleAuth();</span>
+        }
+<span class="nc" id="L166">        return connectBuilder.build();</span>
+    }
+
+    /**
+     * Connect to the MQTT broker
+     */
+    public void connect() {
+<span class="nc" id="L173">        client = buildClient();</span>
+<span class="nc" id="L174">        String uuid = client.getConfig().getClientIdentifier().map(MqttClientIdentifier::toString).orElse(&quot;&lt;no uuid&gt;&quot;);</span>
+<span class="nc" id="L175">        logger.trace(&quot;Client {} connecting to server {}&quot;, uuid, settings.getHost());</span>
+<span class="nc" id="L176">        LocalDateTime time = LocalDateTime.now();</span>
+<span class="nc" id="L177">        client.connect(getConnect()).whenComplete((ack, e) -&gt; {</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            if (e != null) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                if (uuid.equals(client.getConfig().getClientIdentifier().toString())) {</span>
+<span class="nc" id="L180">                    logger.error(&quot;Error with connection initiated at {}: {}&quot;, time, e.getMessage());</span>
+                }
+                else {
+<span class="nc" id="L183">                    logger.warn(&quot;Error with some old connection with UUID={}&quot;, uuid, e);</span>
+                }
+            }
+            else {
+<span class="nc" id="L187">                logger.debug(&quot;connect successfully&quot;);</span>
+            }
+<span class="nc" id="L189">        });</span>
+
+<span class="nc" id="L191">        watchConnection();</span>
+<span class="nc" id="L192">    }</span>
+
+    private void watchConnection() {
+        // stop tasks that were running before
+<span class="nc" id="L196">        logger.trace(&quot;Resetting previous connection watch tasks (if present)&quot;);</span>
+<span class="nc" id="L197">        connectionWatch.cancel();</span>
+<span class="nc" id="L198">        connectionWatch = new Timer();</span>
+
+<span class="nc" id="L200">        final long periodMillis = settings.getConnectionRetryInterval() * 1000;</span>
+<span class="nc" id="L201">        TimerTask connectionWatchTask = new TimerTask() {</span>
+<span class="nc" id="L202">            AtomicInteger disconnectedCount = new AtomicInteger(0);</span>
+
+            @Override
+            public void run() {
+<span class="nc" id="L206">                boolean connected = client.getState().isConnected();</span>
+<span class="nc" id="L207">                boolean connectedOrReconnect = client.getState().isConnectedOrReconnect();</span>
+<span class="nc" id="L208">                String clientIdentifier = client.getConfig()</span>
+<span class="nc" id="L209">                        .getClientIdentifier()</span>
+<span class="nc" id="L210">                        .map(MqttClientIdentifier::toString)</span>
+<span class="nc" id="L211">                        .orElse(&quot;&lt;none&gt;&quot;);</span>
+
+<span class="nc" id="L213">                logger.debug(&quot;Client (identifier={}, host={}) state: connected={}, connectedOrReconnect={}&quot;,</span>
+<span class="nc" id="L214">                        clientIdentifier, settings.getHost(), connected, connectedOrReconnect);</span>
+
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                if (connectedOrReconnect) {</span>
+<span class="nc" id="L217">                    logger.debug(&quot;Is connectedOrReconnect&quot;);</span>
+<span class="nc" id="L218">                    disconnectedCount.set(0);</span>
+                }
+                else {
+<span class="nc" id="L221">                    int disconnectedSince = disconnectedCount.incrementAndGet();</span>
+<span class="nc" id="L222">                    logger.debug(&quot;Is now disconnected since {} runs&quot;, disconnectedSince);</span>
+                }
+
+<span class="nc" id="L225">                final long disconnectedCnt = 10;</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                if (disconnectedCount.get() &gt; disconnectedCnt) {</span>
+<span class="nc" id="L227">                    logger.info(</span>
+                            &quot;Was disconnected for more than {}ms. Starting manual reconnect by creating a new client, disconnecting old client&quot;,
+<span class="nc" id="L229">                            periodMillis * disconnectedCnt);</span>
+<span class="nc" id="L230">                    client.disconnect();</span>
+<span class="nc" id="L231">                    String newIdentifier = UUID.randomUUID().toString();</span>
+<span class="nc" id="L232">                    clientBuilder.identifier(newIdentifier);</span>
+<span class="nc" id="L233">                    connect();</span>
+                }
+<span class="nc" id="L235">            }</span>
+        };
+<span class="nc" id="L237">        connectionWatch.scheduleAtFixedRate(connectionWatchTask, 0, periodMillis);</span>
+
+<span class="nc" id="L239">        Runtime.getRuntime().addShutdownHook(new Thread(() -&gt; {</span>
+<span class="nc" id="L240">            connectionWatch.cancel();</span>
+<span class="nc" id="L241">            logger.debug(&quot;Shut down connection watch timer&quot;);</span>
+<span class="nc" id="L242">        }));</span>
+<span class="nc" id="L243">        logger.trace(&quot;Watching connection&quot;);</span>
+<span class="nc" id="L244">    }</span>
+
+    /**
+     * Disconnect from the MQTT broker
+     */
+    public void disconnect() {
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        if (settings.isLastWillAlways()) {</span>
+<span class="nc" id="L251">            client.publishWith()</span>
+<span class="nc" id="L252">                    .topic(settings.getLastWillTopic())</span>
+<span class="nc" id="L253">                    .payload(settings.getLastWillPayload())</span>
+<span class="nc" id="L254">                    .send()</span>
+<span class="nc" id="L255">                    .whenComplete((publish, e) -&gt; {</span>
+<span class="nc" id="L256">                        client.disconnect();</span>
+<span class="nc" id="L257">                    });</span>
+        }
+        else {
+<span class="nc" id="L260">            client.disconnect();</span>
+        }
+<span class="nc" id="L262">    }</span>
+
+    void addConnectedListener(MqttClientConnectedListener listener) {
+<span class="nc" id="L265">        logger.trace(&quot;addConnectedListener &quot;);</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (clientBuilder == null) {</span>
+<span class="nc" id="L267">            connectedListeners.add(listener);</span>
+        }
+        else {
+<span class="nc" id="L270">            clientBuilder.addConnectedListener(listener);</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (!connectedListeners.contains(listener)) {</span>
+<span class="nc" id="L272">                connectedListeners.add(listener);</span>
+            }
+        }
+<span class="nc" id="L275">    }</span>
+
+    void addDisconnectedListener(MqttClientDisconnectedListener listener) {
+<span class="nc" id="L278">        logger.trace(&quot;addDisconnectedListener&quot;);</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        if (clientBuilder == null) {</span>
+<span class="nc" id="L280">            disconnectedListeners.add(listener);</span>
+        }
+        else {
+<span class="nc" id="L283">            clientBuilder.addDisconnectedListener(listener);</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">            if (!disconnectedListeners.contains(listener)) {</span>
+<span class="nc" id="L285">                disconnectedListeners.add(listener);</span>
+            }
+        }
+<span class="nc" id="L288">    }</span>
+
+    Mqtt3AsyncClient getClient() {
+<span class="nc" id="L291">        return client;</span>
+    }
+
+    /**
+     * @return the settings {@link MqttSettings} this connection was constructed with
+     */
+    public MqttSettings getSettings() {
+<span class="nc" id="L298">        return settings;</span>
+    }
+
+    public void setSslManager(SslManagerInterface instance) {
+<span class="nc bnc" id="L302" title="All 2 branches missed.">        if (!settings.isSsl()) {</span>
+<span class="nc" id="L303">            return;</span>
+        }
+<span class="nc" id="L305">        sslManager = instance;</span>
+<span class="nc" id="L306">        clientBuilder = getClientBuilder();</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">        for (MqttClientConnectedListener listener : connectedListeners) {</span>
+<span class="nc" id="L308">            addConnectedListener(listener);</span>
+<span class="nc" id="L309">        }</span>
+<span class="nc" id="L310">        connectedListeners.clear();</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">        for (MqttClientDisconnectedListener listener : disconnectedListeners) {</span>
+<span class="nc" id="L312">            addDisconnectedListener(listener);</span>
+<span class="nc" id="L313">        }</span>
+<span class="nc" id="L314">        disconnectedListeners.clear();</span>
+<span class="nc" id="L315">        sslManager.listenForConfigChange(this::sslUpdate);</span>
+<span class="nc" id="L316">        addDisconnectedListener(context -&gt; {</span>
+<span class="nc" id="L317">            logger.debug(&quot;Handling disconnect&quot;);</span>
+<span class="nc" id="L318">            String disconnectedClientId = context.getClientConfig()</span>
+<span class="nc" id="L319">                    .getClientIdentifier()</span>
+<span class="nc" id="L320">                    .map(MqttClientIdentifier::toString)</span>
+<span class="nc" id="L321">                    .orElse(&quot;&lt;no id from context&gt;&quot;);</span>
+<span class="nc" id="L322">            String thisClientIdentifier = client.getConfig()</span>
+<span class="nc" id="L323">                    .getClientIdentifier()</span>
+<span class="nc" id="L324">                    .map(MqttClientIdentifier::toString)</span>
+<span class="nc" id="L325">                    .orElse(&quot;&lt;no id from client&gt;&quot;);</span>
+
+<span class="nc bnc" id="L327" title="All 2 branches missed.">            if (!disconnectedClientId.equals(thisClientIdentifier)) {</span>
+<span class="nc" id="L328">                logger.debug(&quot;Old client was disconnected. Preventing further reconnects.&quot;);</span>
+<span class="nc" id="L329">                context.getReconnector().reconnect(false);</span>
+            }
+<span class="nc bnc" id="L331" title="All 2 branches missed.">            else if (context.getReconnector().getAttempts() &gt;= 3) {</span>
+                // if the reconnect was not successful for 3 times, then it probably will be never!
+                // just create a new connection instead!
+                // this case is only interesting for ssl, did not without ssl according to martin
+
+<span class="nc" id="L336">                logger.debug(&quot;Shutting down old client&quot;);</span>
+<span class="nc" id="L337">                context.getReconnector().reconnect(false);</span>
+<span class="nc" id="L338">                client.disconnect();</span>
+<span class="nc" id="L339">                logger.info(&quot;Disconnected old client {}, starting new client&quot;, thisClientIdentifier);</span>
+
+<span class="nc" id="L341">                String newIdentifier = UUID.randomUUID().toString();</span>
+<span class="nc" id="L342">                clientBuilder.identifier(newIdentifier);</span>
+<span class="nc" id="L343">                connect();</span>
+<span class="nc" id="L344">                logger.debug(&quot;Connected to new client {}&quot;, newIdentifier);</span>
+            }
+<span class="nc" id="L346">        });</span>
+<span class="nc" id="L347">        client = buildClient();</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">        if (sslManager.isLoaded()) {</span>
+<span class="nc" id="L349">            sslReady = true;</span>
+        }
+<span class="nc" id="L351">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

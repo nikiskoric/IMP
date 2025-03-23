@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.datalogger.mqtt.MqttChannelLogSettingsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:42:47" hostname="TEA" time="0.052">
+  <properties/>
+  <testcase name="testCorrectTopic()" classname="org.openmuc.framework.datalogger.mqtt.MqttChannelLogSettingsTest" time="0.043"/>
+  <testcase name="testMissingMqttTopic()" classname="org.openmuc.framework.datalogger.mqtt.MqttChannelLogSettingsTest" time="0.004"/>
+  <testcase name="testMissingMqttSettings()" classname="org.openmuc.framework.datalogger.mqtt.MqttChannelLogSettingsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

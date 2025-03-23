@@ -1,0 +1,7 @@
+fileConversion\FromOWLToXML.class
+conversion\csvtoxml\ProbaCSVtoOWL.class
+conversion\csvtoxml\CSVtoXMLconversionTwoFiles.class
+fileConversion\FromCSVToXML.class
+fileConversion\FromCSVToOWL.class
+conversion\csvtoxml\XMLfromCSV.class
+conversion\toXML\OWLtoXML.class

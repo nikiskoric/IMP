@@ -1,0 +1,1136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Iec61850Connection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-iec61850</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.iec61850</a> &gt; <span class="el_source">Iec61850Connection.java</span></div><h1>Iec61850Connection.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.iec61850;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.BooleanValue;
+import org.openmuc.framework.data.ByteArrayValue;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.FloatValue;
+import org.openmuc.framework.data.IntValue;
+import org.openmuc.framework.data.LongValue;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ChannelValueContainer;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.beanit.iec61850bean.BasicDataAttribute;
+import com.beanit.iec61850bean.BdaBitString;
+import com.beanit.iec61850bean.BdaBoolean;
+import com.beanit.iec61850bean.BdaCheck;
+import com.beanit.iec61850bean.BdaDoubleBitPos;
+import com.beanit.iec61850bean.BdaEntryTime;
+import com.beanit.iec61850bean.BdaFloat32;
+import com.beanit.iec61850bean.BdaFloat64;
+import com.beanit.iec61850bean.BdaInt128;
+import com.beanit.iec61850bean.BdaInt16;
+import com.beanit.iec61850bean.BdaInt16U;
+import com.beanit.iec61850bean.BdaInt32;
+import com.beanit.iec61850bean.BdaInt32U;
+import com.beanit.iec61850bean.BdaInt64;
+import com.beanit.iec61850bean.BdaInt8;
+import com.beanit.iec61850bean.BdaInt8U;
+import com.beanit.iec61850bean.BdaOctetString;
+import com.beanit.iec61850bean.BdaOptFlds;
+import com.beanit.iec61850bean.BdaQuality;
+import com.beanit.iec61850bean.BdaReasonForInclusion;
+import com.beanit.iec61850bean.BdaTapCommand;
+import com.beanit.iec61850bean.BdaTimestamp;
+import com.beanit.iec61850bean.BdaTriggerConditions;
+import com.beanit.iec61850bean.BdaUnicodeString;
+import com.beanit.iec61850bean.BdaVisibleString;
+import com.beanit.iec61850bean.ClientAssociation;
+import com.beanit.iec61850bean.Fc;
+import com.beanit.iec61850bean.FcModelNode;
+import com.beanit.iec61850bean.ModelNode;
+import com.beanit.iec61850bean.ServerModel;
+import com.beanit.iec61850bean.ServiceError;
+
+public final class Iec61850Connection implements Connection {
+
+<span class="fc" id="L82">    private static final Logger logger = LoggerFactory.getLogger(Iec61850Connection.class);</span>
+
+    private static final String STRING_SEPARATOR = &quot;,&quot;;
+
+    private final ClientAssociation clientAssociation;
+    private final ServerModel serverModel;
+
+<span class="fc" id="L89">    public Iec61850Connection(ClientAssociation clientAssociation, ServerModel serverModel) {</span>
+<span class="fc" id="L90">        this.clientAssociation = clientAssociation;</span>
+<span class="fc" id="L91">        this.serverModel = serverModel;</span>
+<span class="fc" id="L92">    }</span>
+
+    @Override
+    public List&lt;ChannelScanInfo&gt; scanForChannels(String settings)
+            throws UnsupportedOperationException, ConnectionException {
+<span class="fc" id="L97">        List&lt;BasicDataAttribute&gt; bdas = serverModel.getBasicDataAttributes();</span>
+<span class="fc" id="L98">        List&lt;ChannelScanInfo&gt; scanInfos = new ArrayList&lt;&gt;(bdas.size());</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        for (BasicDataAttribute bda : bdas) {</span>
+<span class="fc" id="L100">            scanInfos.add(createScanInfo(bda));</span>
+<span class="fc" id="L101">        }</span>
+<span class="fc" id="L102">        return scanInfos;</span>
+    }
+
+    @Override
+    public Object read(List&lt;ChannelRecordContainer&gt; containers, Object containerListHandle, String samplingGroup)
+            throws UnsupportedOperationException, ConnectionException {
+        // Check if record container objects exist -&gt; check if basic data attribute exists in server model for channel
+        // adress
+        // -&gt; model node exists but is no BDA
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (ChannelRecordContainer container : containers) {</span>
+
+<span class="fc" id="L113">            setChannelHandleWithFcModelNode(container);</span>
+<span class="fc" id="L114">        }</span>
+
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        if (!samplingGroup.isEmpty()) {</span>
+
+<span class="nc" id="L118">            return setRecordContainerWithSamplingGroup(containers, containerListHandle, samplingGroup);</span>
+
+        }
+        // sampling group is empty
+        else {
+
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            for (ChannelRecordContainer container : containers) {</span>
+
+<span class="fc" id="L126">                setRecordContainer(container);</span>
+<span class="fc" id="L127">            }</span>
+<span class="fc" id="L128">            return null;</span>
+        }
+
+    }
+
+    @Override
+    public Object write(List&lt;ChannelValueContainer&gt; containers, Object containerListHandle)
+            throws UnsupportedOperationException, ConnectionException {
+
+<span class="fc" id="L137">        List&lt;FcModelNode&gt; modelNodesToBeWritten = new ArrayList&lt;&gt;(containers.size());</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for (ChannelValueContainer container : containers) {</span>
+
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            if (container.getChannelHandle() != null) {</span>
+<span class="nc" id="L141">                modelNodesToBeWritten.add((FcModelNode) container.getChannelHandle());</span>
+<span class="nc" id="L142">                setFcModelNode(container, (FcModelNode) container.getChannelHandle());</span>
+            }
+            else {
+
+<span class="fc" id="L146">                String[] args = container.getChannelAddress().split(&quot;:&quot;, 3);</span>
+
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">                if (args.length != 2) {</span>
+<span class="nc" id="L149">                    logger.debug(&quot;Wrong channel address syntax: {}&quot;, container.getChannelAddress());</span>
+<span class="nc" id="L150">                    container.setFlag(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND);</span>
+<span class="nc" id="L151">                    continue;</span>
+                }
+
+<span class="fc" id="L154">                ModelNode modelNode = serverModel.findModelNode(args[0], Fc.fromString(args[1]));</span>
+
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                if (modelNode == null) {</span>
+<span class="nc" id="L157">                    logger.debug(&quot;No Basic Data Attribute for the channel address {} was found in the server model.&quot;,</span>
+<span class="nc" id="L158">                            container.getChannelAddress());</span>
+<span class="nc" id="L159">                    container.setFlag(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND);</span>
+<span class="nc" id="L160">                    continue;</span>
+                }
+
+                FcModelNode fcModelNode;
+                try {
+<span class="fc" id="L165">                    fcModelNode = (FcModelNode) modelNode;</span>
+
+<span class="nc" id="L167">                } catch (ClassCastException e) {</span>
+<span class="nc" id="L168">                    logger.debug(</span>
+                            &quot;ModelNode with object reference {} was found in the server model but is not a Basic Data Attribute.&quot;,
+<span class="nc" id="L170">                            container.getChannelAddress());</span>
+<span class="nc" id="L171">                    container.setFlag(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND);</span>
+<span class="nc" id="L172">                    continue;</span>
+<span class="fc" id="L173">                }</span>
+<span class="fc" id="L174">                container.setChannelHandle(fcModelNode);</span>
+<span class="fc" id="L175">                modelNodesToBeWritten.add(fcModelNode);</span>
+<span class="fc" id="L176">                setFcModelNode(container, fcModelNode);</span>
+
+            }
+<span class="fc" id="L179">        }</span>
+
+        // TODO
+        // first check all datasets if the are some that contain only requested channels
+        // then check all remaining model nodes
+
+<span class="fc" id="L185">        List&lt;FcModelNode&gt; fcNodesToBeRequested = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        while (modelNodesToBeWritten.size() &gt; 0) {</span>
+<span class="fc" id="L188">            fillRequestedNodes(fcNodesToBeRequested, modelNodesToBeWritten, serverModel);</span>
+        }
+
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        for (FcModelNode fcModelNode : fcNodesToBeRequested) {</span>
+            try {
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">                if (fcModelNode.getFc().toString().equals(&quot;CO&quot;)) {</span>
+<span class="nc" id="L194">                    logger.info(&quot;writing CO model node&quot;);</span>
+<span class="nc" id="L195">                    fcModelNode = (FcModelNode) fcModelNode.getParent().getParent();</span>
+<span class="nc" id="L196">                    clientAssociation.operate(fcModelNode);</span>
+                }
+                else {
+<span class="fc" id="L199">                    clientAssociation.setDataValues(fcModelNode);</span>
+                }
+<span class="nc" id="L201">            } catch (ServiceError e) {</span>
+<span class="nc" id="L202">                logger.error(&quot;Error writing to channel: service error calling setDataValues on {}: {}&quot;,</span>
+<span class="nc" id="L203">                        fcModelNode.getReference(), e);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                for (BasicDataAttribute bda : fcModelNode.getBasicDataAttributes()) {</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                    for (ChannelValueContainer valueContainer : containers) {</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                        if (valueContainer.getChannelHandle() == bda) {</span>
+<span class="nc" id="L207">                            valueContainer.setFlag(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE);</span>
+                        }
+<span class="nc" id="L209">                    }</span>
+<span class="nc" id="L210">                }</span>
+<span class="nc" id="L211">                return null;</span>
+<span class="nc" id="L212">            } catch (IOException e) {</span>
+<span class="nc" id="L213">                throw new ConnectionException(e);</span>
+<span class="fc" id="L214">            }</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">            for (BasicDataAttribute bda : fcModelNode.getBasicDataAttributes()) {</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                for (ChannelValueContainer valueContainer : containers) {</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">                    if (valueContainer.getChannelHandle() == bda) {</span>
+<span class="nc" id="L218">                        valueContainer.setFlag(Flag.VALID);</span>
+                    }
+<span class="fc" id="L220">                }</span>
+<span class="fc" id="L221">            }</span>
+<span class="fc" id="L222">        }</span>
+
+<span class="fc" id="L224">        return null;</span>
+
+    }
+
+    private FcModelNode setRecordContainer(ChannelRecordContainer container) throws ConnectionException {
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        if (container.getChannelHandle() == null) {</span>
+<span class="nc" id="L230">            return null;</span>
+        }
+<span class="fc" id="L232">        FcModelNode fcModelNode = (FcModelNode) container.getChannelHandle();</span>
+        try {
+<span class="fc" id="L234">            clientAssociation.getDataValues(fcModelNode);</span>
+<span class="nc" id="L235">        } catch (ServiceError e) {</span>
+<span class="nc" id="L236">            logger.debug(&quot;Error reading channel: service error calling getDataValues on {}: {}&quot;,</span>
+<span class="nc" id="L237">                    container.getChannelAddress(), e);</span>
+<span class="nc" id="L238">            container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE));</span>
+<span class="nc" id="L239">            return fcModelNode;</span>
+<span class="nc" id="L240">        } catch (IOException e) {</span>
+<span class="nc" id="L241">            throw new ConnectionException(e);</span>
+<span class="fc" id="L242">        }</span>
+
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">        if (fcModelNode instanceof BasicDataAttribute) {</span>
+<span class="fc" id="L245">            long receiveTime = System.currentTimeMillis();</span>
+<span class="fc" id="L246">            setRecord(container, (BasicDataAttribute) fcModelNode, receiveTime);</span>
+<span class="fc" id="L247">        }</span>
+        else {
+<span class="nc" id="L249">            StringBuilder sb = new StringBuilder(&quot;&quot;);</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            for (BasicDataAttribute bda : fcModelNode.getBasicDataAttributes()) {</span>
+<span class="nc" id="L251">                sb.append(bda2String(bda) + STRING_SEPARATOR);</span>
+<span class="nc" id="L252">            }</span>
+<span class="nc" id="L253">            sb.delete(sb.length() - 1, sb.length());// remove last separator</span>
+<span class="nc" id="L254">            long receiveTime = System.currentTimeMillis();</span>
+<span class="nc" id="L255">            setRecord(container, sb.toString(), receiveTime);</span>
+        }
+<span class="fc" id="L257">        return null;</span>
+    }
+
+    private Object setRecordContainerWithSamplingGroup(List&lt;ChannelRecordContainer&gt; containers,
+            Object containerListHandle, String samplingGroup) throws ConnectionException {
+        FcModelNode fcModelNode;
+<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (containerListHandle != null) {</span>
+<span class="nc" id="L264">            fcModelNode = (FcModelNode) containerListHandle;</span>
+        }
+
+        else {
+
+<span class="nc" id="L269">            String[] args = samplingGroup.split(&quot;:&quot;, 3);</span>
+
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (args.length != 2) {</span>
+<span class="nc" id="L272">                logger.debug(&quot;Wrong sampling group syntax: {}&quot;, samplingGroup);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                for (ChannelRecordContainer container : containers) {</span>
+<span class="nc" id="L274">                    container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));</span>
+<span class="nc" id="L275">                }</span>
+<span class="nc" id="L276">                return null;</span>
+            }
+
+<span class="nc" id="L279">            ModelNode modelNode = serverModel.findModelNode(args[0], Fc.fromString(args[1]));</span>
+
+<span class="nc bnc" id="L281" title="All 2 branches missed.">            if (modelNode == null) {</span>
+<span class="nc" id="L282">                logger.debug(</span>
+                        &quot;Error reading sampling group: no FCDO/DA or DataSet with object reference {} was not found in the server model.&quot;,
+                        samplingGroup);
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                for (ChannelRecordContainer container : containers) {</span>
+<span class="nc" id="L286">                    container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));</span>
+<span class="nc" id="L287">                }</span>
+<span class="nc" id="L288">                return null;</span>
+            }
+
+            try {
+<span class="nc" id="L292">                fcModelNode = (FcModelNode) modelNode;</span>
+<span class="nc" id="L293">            } catch (ClassCastException e) {</span>
+<span class="nc" id="L294">                logger.debug(</span>
+                        &quot;Error reading channel: ModelNode with sampling group reference {} was found in the server model but is not a FcModelNode.&quot;,
+                        samplingGroup);
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                for (ChannelRecordContainer container : containers) {</span>
+<span class="nc" id="L298">                    container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_FOUND));</span>
+<span class="nc" id="L299">                }</span>
+<span class="nc" id="L300">                return null;</span>
+<span class="nc" id="L301">            }</span>
+
+        }
+
+        try {
+<span class="nc" id="L306">            clientAssociation.getDataValues(fcModelNode);</span>
+<span class="nc" id="L307">        } catch (ServiceError e) {</span>
+<span class="nc" id="L308">            logger.debug(&quot;Error reading sampling group: service error calling getDataValues on {}: {}&quot;, samplingGroup,</span>
+                    e);
+<span class="nc bnc" id="L310" title="All 2 branches missed.">            for (ChannelRecordContainer container : containers) {</span>
+<span class="nc" id="L311">                container.setRecord(new Record(Flag.DRIVER_ERROR_SAMPLING_GROUP_NOT_ACCESSIBLE));</span>
+<span class="nc" id="L312">            }</span>
+<span class="nc" id="L313">            return fcModelNode;</span>
+<span class="nc" id="L314">        } catch (IOException e) {</span>
+<span class="nc" id="L315">            throw new ConnectionException(e);</span>
+<span class="nc" id="L316">        }</span>
+
+<span class="nc" id="L318">        long receiveTime = System.currentTimeMillis();</span>
+
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        for (ChannelRecordContainer container : containers) {</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            if (container.getChannelHandle() != null) {</span>
+<span class="nc" id="L322">                setRecord(container, (BasicDataAttribute) container.getChannelHandle(), receiveTime);</span>
+            }
+            else {
+<span class="nc" id="L325">                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_NOT_PART_OF_SAMPLING_GROUP));</span>
+            }
+<span class="nc" id="L327">        }</span>
+
+<span class="nc" id="L329">        return fcModelNode;</span>
+    }
+
+    private void setChannelHandleWithFcModelNode(ChannelRecordContainer container) {
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">        if (container.getChannelHandle() == null) {</span>
+
+<span class="fc" id="L335">            String[] args = container.getChannelAddress().split(&quot;:&quot;, 3);</span>
+
+<span class="pc bpc" id="L337" title="1 of 2 branches missed.">            if (args.length != 2) {</span>
+<span class="nc" id="L338">                logger.debug(&quot;Wrong channel address syntax: {}&quot;, container.getChannelAddress());</span>
+<span class="nc" id="L339">                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));</span>
+<span class="nc" id="L340">                return;</span>
+            }
+
+<span class="fc" id="L343">            ModelNode modelNode = serverModel.findModelNode(args[0], Fc.fromString(args[1]));</span>
+
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">            if (modelNode == null) {</span>
+<span class="nc" id="L346">                logger.debug(&quot;No Basic Data Attribute for the channel address {} was found in the server model.&quot;,</span>
+<span class="nc" id="L347">                        container.getChannelAddress());</span>
+<span class="nc" id="L348">                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));</span>
+<span class="nc" id="L349">                return;</span>
+            }
+
+            FcModelNode fcModelNode;
+            try {
+<span class="fc" id="L354">                fcModelNode = (FcModelNode) modelNode;</span>
+<span class="nc" id="L355">            } catch (ClassCastException e) {</span>
+<span class="nc" id="L356">                logger.debug(</span>
+                        &quot;ModelNode with object reference {} was found in the server model but is not a Basic Data Attribute.&quot;,
+<span class="nc" id="L358">                        container.getChannelAddress());</span>
+<span class="nc" id="L359">                container.setRecord(new Record(Flag.DRIVER_ERROR_CHANNEL_WITH_THIS_ADDRESS_NOT_FOUND));</span>
+<span class="nc" id="L360">                return;</span>
+<span class="fc" id="L361">            }</span>
+<span class="fc" id="L362">            container.setChannelHandle(fcModelNode);</span>
+
+        }
+<span class="fc" id="L365">    }</span>
+
+    @Override
+    public void startListening(List&lt;ChannelRecordContainer&gt; containers, RecordsReceivedListener listener)
+            throws UnsupportedOperationException {
+<span class="nc" id="L370">        throw new UnsupportedOperationException();</span>
+    }
+
+    void fillRequestedNodes(List&lt;FcModelNode&gt; fcNodesToBeRequested, List&lt;FcModelNode&gt; remainingFcModelNodes,
+            ServerModel serverModel) {
+
+<span class="fc" id="L376">        FcModelNode currentFcModelNode = remainingFcModelNodes.get(0);</span>
+
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">        if (!checkParent(currentFcModelNode, fcNodesToBeRequested, remainingFcModelNodes, serverModel)) {</span>
+<span class="fc" id="L379">            remainingFcModelNodes.remove(currentFcModelNode);</span>
+<span class="fc" id="L380">            fcNodesToBeRequested.add(currentFcModelNode);</span>
+        }
+
+<span class="fc" id="L383">    }</span>
+
+    boolean checkParent(ModelNode modelNode, List&lt;FcModelNode&gt; fcNodesToBeRequested,
+            List&lt;FcModelNode&gt; remainingModelNodes, ServerModel serverModel) {
+
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">        if (!(modelNode instanceof FcModelNode)) {</span>
+<span class="nc" id="L389">            return false;</span>
+        }
+
+<span class="fc" id="L392">        FcModelNode fcModelNode = (FcModelNode) modelNode;</span>
+
+<span class="fc" id="L394">        ModelNode parentNode = serverModel;</span>
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        for (int i = 0; i &lt; fcModelNode.getReference().size() - 1; i++) {</span>
+<span class="fc" id="L396">            parentNode = parentNode.getChild(fcModelNode.getReference().get(i), fcModelNode.getFc());</span>
+        }
+
+<span class="fc" id="L399">        List&lt;BasicDataAttribute&gt; basicDataAttributes = parentNode.getBasicDataAttributes();</span>
+<span class="pc bpc" id="L400" title="1 of 2 branches missed.">        for (BasicDataAttribute bda : basicDataAttributes) {</span>
+<span class="fc bfc" id="L401" title="All 2 branches covered.">            if (!remainingModelNodes.contains(bda)) {</span>
+<span class="fc" id="L402">                return false;</span>
+            }
+<span class="fc" id="L404">        }</span>
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">        if (!checkParent(parentNode, fcNodesToBeRequested, remainingModelNodes, serverModel)) {</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">            for (BasicDataAttribute bda : basicDataAttributes) {</span>
+<span class="nc" id="L408">                remainingModelNodes.remove(bda);</span>
+<span class="nc" id="L409">            }</span>
+<span class="nc" id="L410">            fcNodesToBeRequested.add((FcModelNode) parentNode);</span>
+        }
+
+<span class="nc" id="L413">        return true;</span>
+    }
+
+    private void setFcModelNode(ChannelValueContainer container, FcModelNode fcModelNode) {
+<span class="pc bpc" id="L417" title="1 of 2 branches missed.">        if (fcModelNode instanceof BasicDataAttribute) {</span>
+<span class="fc" id="L418">            setBda(container, (BasicDataAttribute) fcModelNode);</span>
+        }
+        else {
+<span class="nc" id="L421">            List&lt;BasicDataAttribute&gt; bdas = fcModelNode.getBasicDataAttributes();</span>
+<span class="nc" id="L422">            String valueString = container.getValue().toString();</span>
+<span class="nc" id="L423">            String[] bdaValues = valueString.split(STRING_SEPARATOR);</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">            if (bdaValues.length != bdas.size()) {</span>
+<span class="nc" id="L425">                throw new IllegalStateException(&quot;attempt to write array &quot; + valueString + &quot; into fcModelNode &quot;</span>
+<span class="nc" id="L426">                        + fcModelNode.getName() + &quot; failed as the dimensions don't fit.&quot;);</span>
+            }
+<span class="nc bnc" id="L428" title="All 2 branches missed.">            for (int i = 0; i &lt; bdaValues.length; i++) {</span>
+<span class="nc" id="L429">                setBda(bdaValues[i], bdas.get(i));</span>
+            }
+        }
+<span class="fc" id="L432">    }</span>
+
+<span class="fc" id="L434">    public enum BdaTypes {</span>
+<span class="fc" id="L435">        BOOLEAN {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L438">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BOOLEAN, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L443">                return ((BdaBoolean) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L448">                return new Record(new BooleanValue(((BdaBoolean) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L453">                ((BdaBoolean) bda).setValue(Boolean.parseBoolean(bdaValueString));</span>
+
+<span class="nc" id="L455">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="fc" id="L459">                ((BdaBoolean) bda).setValue(container.getValue().asBoolean());</span>
+<span class="fc" id="L460">            }</span>
+        },
+<span class="fc" id="L462">        INT8 {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L465">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L470">                return ((BdaInt8) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L475">                return new Record(new DoubleValue(((BdaInt8) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L480">                ((BdaInt8) bda).setValue(Byte.parseByte(bdaValueString));</span>
+
+<span class="nc" id="L482">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L486">                ((BdaInt8) bda).setValue(container.getValue().asByte());</span>
+<span class="nc" id="L487">            }</span>
+        },
+<span class="fc" id="L489">        INT16 {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L492">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.SHORT, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L497">                return &quot;&quot; + ((BdaInt16) bda).getValue();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L502">                return new Record(new DoubleValue(((BdaInt16) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L507">                ((BdaInt16) bda).setValue(Short.parseShort(bdaValueString));</span>
+
+<span class="nc" id="L509">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L513">                ((BdaInt16) bda).setValue(container.getValue().asShort());</span>
+<span class="nc" id="L514">            }</span>
+        },
+<span class="fc" id="L516">        INT32 {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L519">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.INTEGER, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L524">                return ((BdaInt32) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L529">                return new Record(new DoubleValue(((BdaInt32) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L534">                ((BdaInt32) bda).setValue(Integer.parseInt(bdaValueString));</span>
+
+<span class="nc" id="L536">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L540">                ((BdaInt32) bda).setValue(container.getValue().asInt());</span>
+<span class="nc" id="L541">            }</span>
+        },
+<span class="fc" id="L543">        INT64 {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L546">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.LONG, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L551">                return &quot;&quot; + ((BdaInt64) bda).getValue();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L556">                return new Record(new DoubleValue(((BdaInt64) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L561">                ((BdaInt64) bda).setValue(Long.parseLong(bdaValueString));</span>
+
+<span class="nc" id="L563">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L567">                ((BdaInt64) bda).setValue(container.getValue().asLong());</span>
+<span class="nc" id="L568">            }</span>
+        },
+<span class="fc" id="L570">        INT128 {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="nc" id="L573">                return null;</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L578">                return ((BdaInt128) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="nc" id="L583">                return new Record(new DoubleValue(((BdaInt128) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L588">                ((BdaInt128) bda).setValue(Long.parseLong(bdaValueString));</span>
+
+<span class="nc" id="L590">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L594">                ((BdaInt128) bda).setValue(container.getValue().asLong());</span>
+<span class="nc" id="L595">            }</span>
+        },
+<span class="fc" id="L597">        INT8U {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L600">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.SHORT, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L605">                return &quot;&quot; + ((BdaInt8U) bda).getValue();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L610">                return new Record(new DoubleValue(((BdaInt8U) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L615">                ((BdaInt8U) bda).setValue(Short.parseShort(bdaValueString));</span>
+
+<span class="nc" id="L617">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L621">                ((BdaInt8U) bda).setValue(container.getValue().asShort());</span>
+<span class="nc" id="L622">            }</span>
+        },
+<span class="fc" id="L624">        INT16U {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L627">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.INTEGER, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L632">                return &quot;&quot; + ((BdaInt16U) bda).getValue();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L637">                return new Record(new DoubleValue(((BdaInt16U) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L642">                ((BdaInt16U) bda).setValue(Integer.parseInt(bdaValueString));</span>
+<span class="nc" id="L643">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L647">                ((BdaInt16U) bda).setValue(container.getValue().asInt());</span>
+<span class="nc" id="L648">            }</span>
+        },
+<span class="fc" id="L650">        INT32U {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L653">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.LONG, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L658">                return ((BdaInt32U) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L663">                return new Record(new DoubleValue(((BdaInt32U) bda).getValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L668">                ((BdaInt32U) bda).setValue(Long.parseLong(bdaValueString));</span>
+
+<span class="nc" id="L670">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L674">                ((BdaInt32U) bda).setValue(container.getValue().asLong());</span>
+<span class="nc" id="L675">            }</span>
+        },
+<span class="fc" id="L677">        FLOAT32 {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L680">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.FLOAT, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L685">                return ((BdaFloat32) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L690">                return new Record(new FloatValue(((BdaFloat32) bda).getFloat()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L695">                ((BdaFloat32) bda).setFloat(Float.parseFloat(bdaValueString));</span>
+<span class="nc" id="L696">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="fc" id="L700">                ((BdaFloat32) bda).setFloat(container.getValue().asFloat());</span>
+<span class="fc" id="L701">            }</span>
+        },
+<span class="fc" id="L703">        FLOAT64 {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L706">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.DOUBLE, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L711">                return ((BdaFloat64) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L716">                return new Record(new DoubleValue(((BdaFloat64) bda).getDouble()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L721">                ((BdaFloat64) bda).setDouble(Double.parseDouble(bdaValueString));</span>
+<span class="nc" id="L722">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L726">                ((BdaFloat64) bda).setDouble(container.getValue().asDouble());</span>
+<span class="nc" id="L727">            }</span>
+        },
+<span class="fc" id="L729">        OCTET_STRING {</span>
+
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L733">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L734">                        ((BdaOctetString) bda).getMaxLength());</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L739">                return Arrays.toString(((BdaOctetString) bda).getValue());</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L744">                return new Record(new ByteArrayValue(((BdaOctetString) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L749">                ((BdaOctetString) bda).setValue(bdaValueString.getBytes());</span>
+
+<span class="nc" id="L751">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L755">                ((BdaOctetString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L756">            }</span>
+        },
+<span class="fc" id="L758">        VISIBLE_STRING {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L761">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L762">                        ((BdaVisibleString) bda).getMaxLength());</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L767">                return ((BdaVisibleString) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L772">                return new Record(new StringValue(((BdaVisibleString) bda).getStringValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L777">                ((BdaVisibleString) bda).setValue(bdaValueString);</span>
+
+<span class="nc" id="L779">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L783">                ((BdaVisibleString) bda).setValue(container.getValue().asString());</span>
+<span class="nc" id="L784">            }</span>
+        },
+<span class="fc" id="L786">        UNICODE_STRING {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+                // TODO Auto- method stub
+<span class="fc" id="L790">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L791">                        ((BdaUnicodeString) bda).getMaxLength());</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L796">                byte[] byteValue = ((BdaUnicodeString) bda).getValue();</span>
+<span class="nc bnc" id="L797" title="All 2 branches missed.">                if (byteValue == null) {</span>
+<span class="nc" id="L798">                    return &quot;null&quot;;</span>
+                }
+                else {
+<span class="nc" id="L801">                    return new String(byteValue);</span>
+                }
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L807">                return new Record(new ByteArrayValue(((BdaUnicodeString) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L812">                ((BdaUnicodeString) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L813">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L817">                ((BdaUnicodeString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L818">            }</span>
+        },
+<span class="fc" id="L820">        TIMESTAMP {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L823">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.LONG, null);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L828">                Instant date = ((BdaTimestamp) bda).getInstant();</span>
+<span class="nc bnc" id="L829" title="All 2 branches missed.">                return date == null ? &quot;&lt;invalid date&gt;&quot; : (&quot;&quot; + date.toEpochMilli());</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L834">                Instant date = ((BdaTimestamp) bda).getInstant();</span>
+
+<span class="pc bpc" id="L836" title="1 of 2 branches missed.">                if (date == null) {</span>
+<span class="nc" id="L837">                    return new Record(new LongValue(-1l), receiveTime);</span>
+                }
+                else {
+<span class="fc" id="L840">                    return new Record(new LongValue(date.toEpochMilli()), receiveTime);</span>
+                }
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L846">                ((BdaTimestamp) bda).setInstant(Instant.ofEpochMilli(Long.parseLong(bdaValueString)));</span>
+<span class="nc" id="L847">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L851">                ((BdaTimestamp) bda).setInstant(Instant.ofEpochMilli(container.getValue().asLong()));</span>
+<span class="nc" id="L852">            }</span>
+        },
+<span class="fc" id="L854">        ENTRY_TIME {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L857">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L858">                        ((BdaEntryTime) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L863">                return ((BdaEntryTime) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L868">                return new Record(new ByteArrayValue(((BdaEntryTime) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L873">                ((BdaEntryTime) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L874">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L878">                ((BdaEntryTime) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L879">            }</span>
+        },
+<span class="fc" id="L881">        CHECK {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L884">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L885">                        ((BdaBitString) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L890">                return ((BdaCheck) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="nc" id="L895">                return new Record(new ByteArrayValue(((BdaCheck) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L900">                ((BdaBitString) bda).setValue(bdaValueString.getBytes());</span>
+
+<span class="nc" id="L902">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L906">                ((BdaBitString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L907">            }</span>
+        },
+<span class="fc" id="L909">        QUALITY {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L912">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L913">                        ((BdaBitString) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L918">                return ((BdaQuality) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L923">                return new Record(new ByteArrayValue(((BdaQuality) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L928">                ((BdaBitString) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L929">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L933">                ((BdaBitString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L934">            }</span>
+        },
+<span class="fc" id="L936">        DOUBLE_BIT_POS {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L939">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L940">                        ((BdaBitString) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L945">                return ((BdaDoubleBitPos) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L950">                return new Record(new ByteArrayValue(((BdaDoubleBitPos) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L955">                ((BdaBitString) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L956">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="fc" id="L960">                ((BdaBitString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="fc" id="L961">            }</span>
+        },
+<span class="fc" id="L963">        TAP_COMMAND {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L966">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L967">                        ((BdaBitString) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L972">                return &quot;&quot; + ((BdaTapCommand) bda).getTapCommand().getIntValue();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L977">                return new Record(new IntValue(((BdaTapCommand) bda).getTapCommand().getIntValue()), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L982">                ((BdaBitString) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L983">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L987">                ((BdaBitString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L988">            }</span>
+        },
+<span class="fc" id="L990">        TRIGGER_CONDITIONS {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L993">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L994">                        ((BdaBitString) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L999">                return ((BdaTriggerConditions) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L1004">                return new Record(new ByteArrayValue(((BdaBitString) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L1009">                ((BdaBitString) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L1010">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L1014">                ((BdaBitString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L1015">            }</span>
+        },
+<span class="fc" id="L1017">        OPTFLDS {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="fc" id="L1020">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="fc" id="L1021">                        ((BdaBitString) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L1026">                return ((BdaOptFlds) bda).toString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="fc" id="L1031">                return new Record(new ByteArrayValue(((BdaOptFlds) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L1036">                ((BdaBitString) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L1037">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L1041">                ((BdaBitString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L1042">            }</span>
+        },
+<span class="fc" id="L1044">        REASON_FOR_INCLUSION {</span>
+            @Override
+            public ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda) {
+<span class="nc" id="L1047">                return new ChannelScanInfo(channelAddress, &quot;&quot;, ValueType.BYTE_ARRAY,</span>
+<span class="nc" id="L1048">                        ((BdaBitString) bda).getValue().length);</span>
+            }
+
+            @Override
+            public String bda2String(BasicDataAttribute bda) {
+<span class="nc" id="L1053">                return ((BdaReasonForInclusion) bda).getValueString();</span>
+            }
+
+            @Override
+            public Record setRecord(BasicDataAttribute bda, long receiveTime) {
+<span class="nc" id="L1058">                return new Record(new ByteArrayValue(((BdaReasonForInclusion) bda).getValue(), true), receiveTime);</span>
+            }
+
+            @Override
+            public void setBda(String bdaValueString, BasicDataAttribute bda) {
+<span class="nc" id="L1063">                ((BdaBitString) bda).setValue(bdaValueString.getBytes());</span>
+<span class="nc" id="L1064">            }</span>
+
+            @Override
+            public void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+<span class="nc" id="L1068">                ((BdaBitString) bda).setValue(container.getValue().asByteArray());</span>
+<span class="nc" id="L1069">            }</span>
+        };
+
+        public abstract ChannelScanInfo getScanInfo(String channelAddress, BasicDataAttribute bda);
+
+        public abstract String bda2String(BasicDataAttribute bda);
+
+        public abstract Record setRecord(BasicDataAttribute bda, long receiveTime);
+
+        public abstract void setBda(String bdaValueString, BasicDataAttribute bda);
+
+        public abstract void setBda(ChannelValueContainer container, BasicDataAttribute bda);
+
+    }
+
+    public ChannelScanInfo createScanInfo(BasicDataAttribute bda) {
+        try {
+<span class="fc" id="L1086">            return BdaTypes.valueOf(bda.getBasicType().toString())</span>
+<span class="fc" id="L1087">                    .getScanInfo(bda.getReference() + &quot;:&quot; + bda.getFc(), bda);</span>
+<span class="nc" id="L1088">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L1089">            throw new IllegalStateException(&quot;unknown BasicType received: &quot; + bda.getBasicType());</span>
+
+        }
+    }
+
+    public String bda2String(BasicDataAttribute bda) {
+        try {
+<span class="nc" id="L1096">            return BdaTypes.valueOf(bda.getBasicType().toString()).bda2String(bda);</span>
+<span class="nc" id="L1097">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L1098">            throw new IllegalStateException(&quot;unknown BasicType received: &quot; + bda.getBasicType());</span>
+        }
+    }
+
+    private void setRecord(ChannelRecordContainer container, BasicDataAttribute bda, long receiveTime) {
+        try {
+<span class="fc" id="L1104">            container.setRecord(BdaTypes.valueOf(bda.getBasicType().toString()).setRecord(bda, receiveTime));</span>
+<span class="nc" id="L1105">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L1106">            throw new IllegalStateException(&quot;unknown BasicType received: &quot; + bda.getBasicType());</span>
+<span class="fc" id="L1107">        }</span>
+<span class="fc" id="L1108">    }</span>
+
+    private void setRecord(ChannelRecordContainer container, String stringValue, long receiveTime) {
+<span class="nc" id="L1111">        container.setRecord(new Record(new ByteArrayValue(stringValue.getBytes(), true), receiveTime));</span>
+<span class="nc" id="L1112">    }</span>
+
+    private void setBda(String bdaValueString, BasicDataAttribute bda) {
+        try {
+<span class="nc" id="L1116">            BdaTypes.valueOf(bda.getBasicType().toString()).setBda(bdaValueString, bda);</span>
+<span class="nc" id="L1117">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L1118">            throw new IllegalStateException(&quot;unknown BasicType received: &quot; + bda.getBasicType());</span>
+<span class="nc" id="L1119">        }</span>
+<span class="nc" id="L1120">    }</span>
+
+    private void setBda(ChannelValueContainer container, BasicDataAttribute bda) {
+        try {
+<span class="fc" id="L1124">            BdaTypes.valueOf(bda.getBasicType().toString()).setBda(container, bda);</span>
+<span class="nc" id="L1125">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L1126">            throw new IllegalStateException(&quot;unknown BasicType received: &quot; + bda.getBasicType());</span>
+<span class="fc" id="L1127">        }</span>
+<span class="fc" id="L1128">    }</span>
+
+    @Override
+    public void disconnect() {
+<span class="fc" id="L1132">        clientAssociation.disconnect();</span>
+<span class="fc" id="L1133">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MathEvaluator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-math</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.channelmath</a> &gt; <span class="el_source">MathEvaluator.java</span></div><h1>MathEvaluator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.channelmath;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.dataaccess.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fathzer.soft.javaluator.DoubleEvaluator;
+
+/**
+ * This class contains methods to parse the mathematical formula contained in a channel's address, replace channels by
+ * their values and finally return the result
+ */
+class MathEvaluator {
+
+    private final static String CHANNEL_DELIMITER = &quot;Â§&quot;;
+<span class="fc" id="L48">    private static final Logger logger = LoggerFactory.getLogger(MathEvaluator.class);</span>
+
+    // Private constructor to prevent instantiation
+    private MathEvaluator() {
+    }
+
+    /**
+     * The main method. Will parse settings and address of the mathChannel, read the latest records from other channels
+     * and return a Record containing the result.
+     */
+    public static RecordWithInputChannelCache evaluate(Channel mathChannel, ChannelFinder channelRefresher,
+            Object cache) throws MathChannelParseException, MathChannelReadExcpetion {
+<span class="fc" id="L60">        TimestampMergeStrategy tsStrategy = TimestampMergeStrategy.parseDeviceSettings(mathChannel);</span>
+
+<span class="fc" id="L62">        String calculationFormulaWithChannelReferences = mathChannel.getChannelAddress();</span>
+<span class="fc" id="L63">        IntermediateResult intermediateResult = parseContainerReplaceChannelsByValues(</span>
+<span class="fc" id="L64">                calculationFormulaWithChannelReferences, mathChannel.getId(), channelRefresher, cache);</span>
+
+<span class="nc" id="L66">        return intermediateResult.getResult(tsStrategy, mathChannel.getSamplingInterval());</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    static IntermediateResult parseContainerReplaceChannelsByValues(
+            final String calculationFormulaWithChannelReferences, String channelId, ChannelFinder channelRefresher,
+            Object cache) throws MathChannelParseException, MathChannelReadExcpetion {
+
+<span class="fc" id="L74">        LinkedList&lt;Record&gt; usedRecords = new LinkedList&lt;&gt;();</span>
+
+        final Set&lt;Channel&gt; inputChannels;
+        final boolean firstOrRefreshRun;
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (cache == null) {</span>
+            // first run --&gt; definitely parse the formula and look for channel references!
+<span class="fc" id="L80">            inputChannels = channelRefresher</span>
+<span class="fc" id="L81">                    .findChannelsRequiredToEvaluateFormula(calculationFormulaWithChannelReferences, channelId);</span>
+<span class="fc" id="L82">            firstOrRefreshRun = true;</span>
+        }
+        else {
+            Set&lt;Channel&gt; mayBeInputChannelsToBeCachedForNextRun;
+            try {
+<span class="nc" id="L87">                mayBeInputChannelsToBeCachedForNextRun = (Set&lt;Channel&gt;) cache;</span>
+<span class="nc" id="L88">                logger.debug(&quot;Using cached channels&quot;);</span>
+<span class="nc" id="L89">            } catch (Exception e) {</span>
+<span class="nc" id="L90">                logger.warn(</span>
+                        &quot;Got invalid cache: cache={0} with type {1}. This should never happen. Refreshing channels required to evaluate formula.&quot;,
+<span class="nc" id="L92">                        new Object[] { cache, cache.getClass(), e });</span>
+<span class="nc" id="L93">                mayBeInputChannelsToBeCachedForNextRun = channelRefresher</span>
+<span class="nc" id="L94">                        .findChannelsRequiredToEvaluateFormula(calculationFormulaWithChannelReferences, channelId);</span>
+<span class="nc" id="L95">                logger.info(</span>
+                        &quot;Refreshed channels required to evaluate formula. Found {0} required input channels. Will store these channels in cache.&quot;);
+<span class="nc" id="L97">            }</span>
+<span class="nc" id="L98">            inputChannels = mayBeInputChannelsToBeCachedForNextRun;</span>
+<span class="nc" id="L99">            firstOrRefreshRun = false;</span>
+        }
+
+<span class="fc" id="L102">        String plainFormulaWithConstants = calculationFormulaWithChannelReferences;</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        for (Channel channel : inputChannels) {</span>
+<span class="nc" id="L104">            Record latestRecord = channel.getLatestRecord();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (latestRecord == null) {</span>
+<span class="nc" id="L106">                throw new MathChannelReadExcpetion(&quot;Unable to read from channel &quot; + channel.getId());</span>
+            }
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (latestRecord.getFlag() != Flag.VALID) {</span>
+<span class="nc" id="L109">                throw new MathChannelReadExcpetion(&quot;Read bad latest record &quot; + latestRecord</span>
+<span class="nc" id="L110">                        + &quot; (flag is not valid) from channel &quot; + channel.getId() + &quot;. Aborting processing.&quot;);</span>
+            }
+
+<span class="nc" id="L113">            usedRecords.add(latestRecord);</span>
+<span class="nc" id="L114">            String valueAsString = String.valueOf(latestRecord.getValue().asDouble());</span>
+<span class="nc" id="L115">            plainFormulaWithConstants = plainFormulaWithConstants</span>
+<span class="nc" id="L116">                    .replaceAll(CHANNEL_DELIMITER + channel.getId() + CHANNEL_DELIMITER, valueAsString);</span>
+
+<span class="nc" id="L118">        }</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (plainFormulaWithConstants.contains(CHANNEL_DELIMITER)) {</span>
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (!firstOrRefreshRun) {</span>
+<span class="nc" id="L122">                logger.warn(</span>
+                        &quot;Formula of channel with id={0} has channel placeholders left. This should only happen upon changes of channels.xml. Re-parsing formula '{1}'&quot;,
+                        new Object[] { channelId, calculationFormulaWithChannelReferences });
+                // call again with null cache
+<span class="nc" id="L126">                return parseContainerReplaceChannelsByValues(calculationFormulaWithChannelReferences, channelId,</span>
+                        channelRefresher, null);
+            }
+            else {
+<span class="nc" id="L130">                throw new MathChannelParseException(</span>
+                        &quot;Replacing channel references by values failed. Refusing to parse again to avoid infinite recursion (and thus stack overflow).&quot;);
+            }
+        }
+        else {
+<span class="fc" id="L135">            logger.debug(</span>
+                    &quot;Successfully replaced all channel references by their values. Input formula={0}, only values formula={1}, used channels={2}.&quot;,
+                    new Object[] { calculationFormulaWithChannelReferences, plainFormulaWithConstants, inputChannels });
+<span class="fc" id="L138">            return new IntermediateResult(plainFormulaWithConstants, usedRecords, inputChannels);</span>
+        }
+    }
+
+    public static Set&lt;String&gt; getChannelIdentifiers(String calculationFormulaWithChannelReferences)
+            throws MathChannelParseException {
+
+<span class="fc" id="L145">        String[] split = calculationFormulaWithChannelReferences.split(CHANNEL_DELIMITER);</span>
+
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (count(CHANNEL_DELIMITER, calculationFormulaWithChannelReferences) % 2 == 1) {</span>
+<span class="nc" id="L148">            throw new MathChannelParseException(&quot;Missing end delimiter '&quot; + CHANNEL_DELIMITER</span>
+                    + &quot;' for channel definition found in '&quot; + calculationFormulaWithChannelReferences + &quot;'.&quot;);
+        }
+
+<span class="fc" id="L152">        Iterator&lt;String&gt; iterator = Arrays.stream(split).iterator();</span>
+<span class="fc" id="L153">        iterator.next(); // throw away everything until the first Â§</span>
+
+<span class="fc" id="L155">        HashSet&lt;String&gt; channelIds = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L157">            String channelId = iterator.next();</span>
+
+<span class="pc bpc" id="L159" title="3 of 6 branches missed.">            if (channelId == null || channelId.isEmpty() || channelId.trim().isEmpty()) {</span>
+<span class="nc" id="L160">                throw new MathChannelParseException(</span>
+                        &quot;Empty Channel definition found in '&quot; + calculationFormulaWithChannelReferences + &quot;'&quot;);
+            }
+
+<span class="fc" id="L164">            channelIds.add(channelId);</span>
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            if (iterator.hasNext()) {</span>
+<span class="fc" id="L167">                iterator.next();// throw away the next string</span>
+            }
+<span class="fc" id="L169">        }</span>
+
+<span class="fc" id="L171">        return channelIds;</span>
+    }
+
+    private static int count(String characterToCount, String searchString) {
+<span class="fc" id="L175">        int lengthWithout = searchString.replaceAll(characterToCount, &quot;&quot;).length();</span>
+<span class="fc" id="L176">        int lengthWith = searchString.length();</span>
+<span class="fc" id="L177">        return lengthWith - lengthWithout;</span>
+    }
+
+    private static class IntermediateResult {
+        /**
+         * A math expression that contains only values and no more channel variables
+         */
+        private final String mathExpression;
+
+        private final Collection&lt;Record&gt; usedRecords;
+
+        private final Set&lt;Channel&gt; inputChannelCache;
+
+        public IntermediateResult(String mathExpression, Collection&lt;Record&gt; usedRecords,
+<span class="fc" id="L191">                Set&lt;Channel&gt; inputChannelCache) {</span>
+<span class="fc" id="L192">            this.mathExpression = mathExpression;</span>
+<span class="fc" id="L193">            this.usedRecords = usedRecords;</span>
+<span class="fc" id="L194">            this.inputChannelCache = inputChannelCache;</span>
+<span class="fc" id="L195">        }</span>
+
+        public RecordWithInputChannelCache getResult(TimestampMergeStrategy tsStrategy, int samplingIntervalMillis) {
+<span class="nc" id="L198">            Double value = new DoubleEvaluator().evaluate(mathExpression);</span>
+
+<span class="nc" id="L200">            List&lt;Long&gt; usedTimestampsMillis = usedRecords.stream()</span>
+<span class="nc" id="L201">                    .map(Record::getTimestamp)</span>
+<span class="nc" id="L202">                    .sorted()</span>
+<span class="nc" id="L203">                    .collect(Collectors.toList());</span>
+<span class="nc" id="L204">            Long timestamp = tsStrategy.merge(usedTimestampsMillis);</span>
+
+            final Flag flag;
+<span class="nc" id="L207">            long maxTsMillis = usedTimestampsMillis.get(usedTimestampsMillis.size() - 1);</span>
+<span class="nc" id="L208">            long minTsMillis = usedTimestampsMillis.get(0);</span>
+<span class="nc" id="L209">            long timestampSpanMilliseconds = maxTsMillis - minTsMillis;</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">            if (timestampSpanMilliseconds &gt; samplingIntervalMillis) {</span>
+<span class="nc" id="L211">                flag = Flag.DRIVER_ERROR_READ_FAILURE;</span>
+            }
+            else {
+<span class="nc" id="L214">                flag = Flag.VALID;</span>
+            }
+<span class="nc" id="L216">            Record record = new Record(new DoubleValue(value), timestamp, flag);</span>
+<span class="nc" id="L217">            return new RecordWithInputChannelCache(record, inputChannelCache);</span>
+        }
+    }
+
+    public static class RecordWithInputChannelCache {
+        private final Record record;
+        private final Set&lt;Channel&gt; inputChannelCache;
+
+<span class="nc" id="L225">        public RecordWithInputChannelCache(Record record, Set&lt;Channel&gt; inputChannelCache) {</span>
+<span class="nc" id="L226">            this.record = record;</span>
+<span class="nc" id="L227">            this.inputChannelCache = inputChannelCache;</span>
+<span class="nc" id="L228">        }</span>
+
+        public Record getRecord() {
+<span class="nc" id="L231">            return record;</span>
+        }
+
+        public Set&lt;Channel&gt; getInputChannelCache() {
+<span class="nc" id="L235">            return inputChannelCache;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

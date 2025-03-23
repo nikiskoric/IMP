@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - TimestampMergeStrategyTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>TimestampMergeStrategyTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/org.openmuc.framework.driver.channelmath.html">org.openmuc.framework.driver.channelmath</a> &gt; TimestampMergeStrategyTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">6</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">1.684s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+<li>
+<a href="#tab2">Standard error</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">allStrategies_creationOfTimestep_sameTs()</td>
+<td class="success">0.086s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">creationOfTimestep_avgTs()</td>
+<td class="success">0.086s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">creationOfTimestep_newestTs()</td>
+<td class="success">0.086s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">creationOfTimestep_oldestTs()</td>
+<td class="success">0.087s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">parsing_bad_string()</td>
+<td class="success">1.149s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">parsing_test()</td>
+<td class="success">0.190s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>11:37:09.967 [ForkJoinPool-1-worker-15] INFO org.openmuc.framework.core.datamanager.DataManagerAccessor - Using file C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\math\build\resources\test\settings_example.xml
+11:37:09.980 [ForkJoinPool-1-worker-15] INFO org.openmuc.framework.core.datamanager.DataManager - Activating Data Manager with config C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\driver\math\build\resources\test\settings_example.xml
+11:37:10.045 [OpenMUC Data Manager Pool - thread-1] DEBUG org.openmuc.framework.core.datamanager.ConnectTask - Driver math connected.
+11:37:11.002 [OpenMUC Data Manager] INFO org.openmuc.framework.core.datamanager.DataManager - Driver registered: math
+11:37:11.003 [OpenMUC Data Manager Pool - thread-1] DEBUG org.openmuc.framework.driver.channelmath.MathEvaluator - Successfully replaced all channel references by their values. Input formula={0}, only values formula={1}, used channels={2}.
+11:37:11.003 [OpenMUC Data Manager Pool - thread-1] DEBUG org.openmuc.framework.driver.channelmath.MathEvaluator - Successfully replaced all channel references by their values. Input formula={0}, only values formula={1}, used channels={2}.
+11:37:11.005 [ForkJoinPool-1-worker-1] DEBUG org.openmuc.framework.driver.channelmath.MathDriver - Set data access service with {0} channels
+11:37:11.005 [ForkJoinPool-1-worker-7] DEBUG org.openmuc.framework.driver.channelmath.MathDriver - Set data access service with {0} channels
+11:37:11.007 [OpenMUC Data Manager] INFO org.openmuc.framework.core.datamanager.DataManager - Driver registered: csv
+11:37:11.008 [OpenMUC Data Manager Pool - thread-1] DEBUG org.openmuc.framework.core.datamanager.ConnectTask - Driver math connected.
+11:37:11.008 [OpenMUC Data Manager Pool - thread-1] DEBUG org.openmuc.framework.core.datamanager.ConnectTask - Driver math connected.
+11:37:11.009 [OpenMUC Data Manager Pool - thread-2] INFO org.openmuc.framework.driver.csv.CsvDriver - Device connected: src/test/resources/mantissaExponent.csv
+11:37:11.011 [OpenMUC Data Manager Pool - thread-2] DEBUG org.openmuc.framework.core.datamanager.ConnectTask - Driver csv connected.
+11:37:11.024 [OpenMUC Data Manager Pool - thread-1] ERROR org.openmuc.framework.driver.channelmath.MathDriver - Unable to calculate result for channel='timestamp_averaging_channel'
+java.lang.IllegalArgumentException: §Const_5§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.024 [OpenMUC Data Manager Pool - thread-1] ERROR org.openmuc.framework.driver.channelmath.MathDriver - Unable to calculate result for channel='DIFF'
+java.lang.IllegalArgumentException: §Const_5§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.024 [OpenMUC Data Manager Pool - thread-1] ERROR org.openmuc.framework.driver.channelmath.MathDriver - Unable to calculate result for channel='Meter_01_p_tot'
+java.lang.IllegalArgumentException: §Meter_01_raw_p_tot_mant§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.024 [OpenMUC Data Manager Pool - thread-1] ERROR org.openmuc.framework.driver.channelmath.MathDriver - Unable to calculate result for channel='SUM'
+java.lang.IllegalArgumentException: §Const_3§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.024 [OpenMUC Data Manager Pool - thread-1] ERROR org.openmuc.framework.driver.channelmath.MathDriver - Unable to calculate result for channel='DIFF'
+java.lang.IllegalArgumentException: §Const_5§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.025 [OpenMUC Data Manager Pool - thread-1] WARN org.openmuc.framework.core.datamanager.SamplingTask - unexpected exception thrown by read function of driver 
+java.lang.IllegalArgumentException: §Const_5§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.025 [OpenMUC Data Manager Pool - thread-1] ERROR org.openmuc.framework.driver.channelmath.MathDriver - Unable to calculate result for channel='SUM'
+java.lang.IllegalArgumentException: §Const_3§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.025 [OpenMUC Data Manager Pool - thread-1] WARN org.openmuc.framework.core.datamanager.SamplingTask - unexpected exception thrown by read function of driver 
+java.lang.IllegalArgumentException: §Const_5§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.026 [OpenMUC Data Manager Pool - thread-1] WARN org.openmuc.framework.core.datamanager.SamplingTask - unexpected exception thrown by read function of driver 
+java.lang.IllegalArgumentException: §Meter_01_raw_p_tot_mant§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.026 [OpenMUC Data Manager Pool - thread-1] WARN org.openmuc.framework.core.datamanager.SamplingTask - unexpected exception thrown by read function of driver 
+java.lang.IllegalArgumentException: §Const_3§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.027 [OpenMUC Data Manager Pool - thread-1] WARN org.openmuc.framework.core.datamanager.SamplingTask - unexpected exception thrown by read function of driver 
+java.lang.IllegalArgumentException: §Const_5§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+11:37:11.028 [OpenMUC Data Manager Pool - thread-1] WARN org.openmuc.framework.core.datamanager.SamplingTask - unexpected exception thrown by read function of driver 
+java.lang.IllegalArgumentException: §Const_3§ is not a number
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:268)
+	at com.fathzer.soft.javaluator.DoubleEvaluator.toValue(DoubleEvaluator.java:52)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.output(AbstractEvaluator.java:133)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:348)
+	at com.fathzer.soft.javaluator.AbstractEvaluator.evaluate(AbstractEvaluator.java:211)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator$IntermediateResult.getResult(MathEvaluator.java:198)
+	at org.openmuc.framework.driver.channelmath.MathEvaluator.evaluate(MathEvaluator.java:66)
+	at org.openmuc.framework.driver.channelmath.MathDriver.read(MathDriver.java:102)
+	at org.openmuc.framework.core.datamanager.SamplingTask.executeRead(SamplingTask.java:79)
+	at org.openmuc.framework.core.datamanager.SamplingTask.run(SamplingTask.java:89)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+</pre>
+</span>
+</div>
+<div id="tab2" class="tab">
+<h2>Standard error</h2>
+<span class="code">
+<pre>SLF4J: A number (2) of logging calls during the initialization phase have been intercepted and are
+SLF4J: now being replayed. These are subject to the filtering rules of the underlying logging system.
+SLF4J: See also http://www.slf4j.org/codes.html#replay
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 7.6.3</a> at Dec 26, 2024, 11:37:16 AM</p>
+</div>
+</div>
+</body>
+</html>

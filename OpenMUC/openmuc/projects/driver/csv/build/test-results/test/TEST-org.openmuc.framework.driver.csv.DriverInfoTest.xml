@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.driver.csv.DriverInfoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:43:09" hostname="TEA" time="0.001">
+  <properties/>
+  <testcase name="printDriverInfo()" classname="org.openmuc.framework.driver.csv.DriverInfoTest" time="0.001"/>
+  <system-out><![CDATA[Description: Driver to read out csv files.
+DeviceScanSettingsSyntax: Synopsis: path= <path> path of directory containing csv files e.g: path=/home/usr/openmuc/framework/csv-driver/
+DeviceAddressSyntax: csv file path e.g. /home/usr/bin/openmuc/csv/meter.csv
+ChannelAddressSyntax: column header
+SettingsSyntax: Synopsis: samplingmode= <samplingmode> [;rewind= <rewind>]
+ samplingmode: [unixtimestamp, hhmmss, line] Example: samplingmode=line;rewind=true Default: samplingmode=line
+Id: csv
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

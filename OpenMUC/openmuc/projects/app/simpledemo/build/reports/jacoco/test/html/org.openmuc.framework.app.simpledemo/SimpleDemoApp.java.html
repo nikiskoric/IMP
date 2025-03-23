@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleDemoApp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-app-simpledemo</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.app.simpledemo</a> &gt; <span class="el_source">SimpleDemoApp.java</span></div><h1>SimpleDemoApp.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * You are free to use code of this sample file in any
+ * way you like and without any restrictions.
+ *
+ */
+package org.openmuc.framework.app.simpledemo;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.DataAccessService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component(service = {})
+<span class="nc" id="L32">public final class SimpleDemoApp {</span>
+
+<span class="nc" id="L34">    private static final Logger logger = LoggerFactory.getLogger(SimpleDemoApp.class);</span>
+<span class="nc" id="L35">    private static final DecimalFormatSymbols DFS = DecimalFormatSymbols.getInstance(Locale.US);</span>
+<span class="nc" id="L36">    private static final DecimalFormat DF = new DecimalFormat(&quot;#0.000&quot;, DFS);</span>
+
+    // ChannelIDs, see conf/channel.xml
+    private static final String ID_POWER_ELECTRIC_VEHICLE = &quot;power_electric_vehicle&quot;;
+    private static final String ID_POWER_GRID = &quot;power_grid&quot;;
+    private static final String ID_POWER_PHOTOVOLTAICS = &quot;power_photovoltaics&quot;;
+    private static final String ID_STATUS_ELECTRIC_VEHICLE = &quot;status_electric_vehicle&quot;;
+    private static final String ID_ENERGY_EXPORTED = &quot;energy_exported&quot;;
+    private static final String ID_ENERGY_IMPORTED = &quot;energy_imported&quot;;
+
+    private static final double STANDBY_POWER_CHARGING_STATION = 0.020;
+
+    // for conversion from power (kW) to energy (kWh)
+    private static final double SECONDS_PER_HOUR = 3600.0;
+    private static final double SECONDS_PER_INTERVAL = 5.0;
+    private static final double HOUR_BASED_INTERVAL_TIME = SECONDS_PER_INTERVAL / SECONDS_PER_HOUR;
+    int printCounter; // for slowing down the output of the console
+
+    // With the dataAccessService you can access to your measured and control data of your devices.
+    @Reference
+    private DataAccessService dataAccessService;
+
+    // Channel for accessing data of a channel.
+    private Channel chPowerElectricVehicle;
+    private Channel chPowerPhotovoltaics;
+    private Channel chPowerGrid;
+    private Channel chEvStatus;
+    private Channel chEnergyExported;
+    private Channel chEnergyImported;
+<span class="nc" id="L65">    private double energyExportedKWh = 0;</span>
+<span class="nc" id="L66">    private double energyImportedKWh = 0;</span>
+    private Timer updateTimer;
+
+    /**
+     * Every app needs one activate method. Is is called at begin. Here you can configure all you need at start of your
+     * app. The Activate method can block the start of your OpenMUC, f.e. if you use Thread.sleep().
+     */
+    @Activate
+    private void activate() {
+<span class="nc" id="L75">        logger.info(&quot;Activating Demo App&quot;);</span>
+<span class="nc" id="L76">        init();</span>
+<span class="nc" id="L77">    }</span>
+
+    /**
+     * Every app needs one deactivate method. It handles the shutdown of your app e.g. closing open streams.
+     */
+    @Deactivate
+    private void deactivate() {
+<span class="nc" id="L84">        logger.info(&quot;Deactivating Demo App&quot;);</span>
+<span class="nc" id="L85">        logger.info(&quot;DemoApp thread interrupted: will stop&quot;);</span>
+<span class="nc" id="L86">        updateTimer.cancel();</span>
+<span class="nc" id="L87">        updateTimer.purge();</span>
+<span class="nc" id="L88">    }</span>
+
+    /**
+     * application logic
+     */
+    private void init() {
+<span class="nc" id="L94">        logger.info(&quot;Demo App started running...&quot;);</span>
+
+<span class="nc" id="L96">        initializeChannels();</span>
+
+        // Example to demonstrate the possibility of individual settings of each channel
+<span class="nc" id="L99">        logger.info(&quot;Settings of the PV system: {}&quot;, chPowerPhotovoltaics.getSettings());</span>
+
+<span class="nc" id="L101">        applyListener();</span>
+<span class="nc" id="L102">        initUpdateTimer();</span>
+<span class="nc" id="L103">    }</span>
+
+    /**
+     * Initialize channel objects
+     */
+    private void initializeChannels() {
+<span class="nc" id="L109">        chPowerElectricVehicle = dataAccessService.getChannel(ID_POWER_ELECTRIC_VEHICLE);</span>
+<span class="nc" id="L110">        chPowerGrid = dataAccessService.getChannel(ID_POWER_GRID);</span>
+<span class="nc" id="L111">        chPowerPhotovoltaics = dataAccessService.getChannel(ID_POWER_PHOTOVOLTAICS);</span>
+<span class="nc" id="L112">        chEvStatus = dataAccessService.getChannel(ID_STATUS_ELECTRIC_VEHICLE);</span>
+<span class="nc" id="L113">        chEnergyExported = dataAccessService.getChannel(ID_ENERGY_EXPORTED);</span>
+<span class="nc" id="L114">        chEnergyImported = dataAccessService.getChannel(ID_ENERGY_IMPORTED);</span>
+<span class="nc" id="L115">    }</span>
+
+    /**
+     * Apply a RecordListener to get notified if a new value is available for a channel
+     */
+    private void applyListener() {
+<span class="nc" id="L121">        chPowerGrid.addListener(record -&gt; {</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (record.getValue() != null) {</span>
+<span class="nc" id="L123">                updateEnergyChannels(record);</span>
+            }
+<span class="nc" id="L125">        });</span>
+<span class="nc" id="L126">    }</span>
+
+    private void initUpdateTimer() {
+<span class="nc" id="L129">        updateTimer = new Timer(&quot;EV-Status Update&quot;);</span>
+
+<span class="nc" id="L131">        TimerTask task = new TimerTask() {</span>
+            @Override
+            public void run() {
+<span class="nc" id="L134">                updateEvStatusChannel();</span>
+<span class="nc" id="L135">            }</span>
+        };
+<span class="nc" id="L137">        updateTimer.scheduleAtFixedRate(task, (long) SECONDS_PER_INTERVAL * 1000, (long) SECONDS_PER_INTERVAL * 1000);</span>
+<span class="nc" id="L138">    }</span>
+
+    /**
+     * Calculate energy imported and exported from current grid power. (Demonstrates how to access the latest record of
+     * a channel and how to set it.)
+     *
+     * @param gridPowerRecord
+     */
+    private void updateEnergyChannels(Record gridPowerRecord) {
+
+<span class="nc" id="L148">        double gridPower = gridPowerRecord.getValue().asDouble();</span>
+<span class="nc" id="L149">        logger.info(&quot;home1: current grid power = &quot; + gridPower + &quot; kW&quot;);</span>
+
+<span class="nc" id="L151">        double energyOfInterval = Math.abs(gridPower) * HOUR_BASED_INTERVAL_TIME;</span>
+<span class="nc" id="L152">        long now = System.currentTimeMillis();</span>
+
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (gridPower &gt;= 0) {</span>
+<span class="nc" id="L155">            energyImportedKWh += energyOfInterval;</span>
+        }
+        else {
+<span class="nc" id="L158">            energyExportedKWh += energyOfInterval;</span>
+        }
+
+<span class="nc" id="L161">        DoubleValue exportDouble = new DoubleValue(Double.parseDouble(DF.format(energyExportedKWh)));</span>
+<span class="nc" id="L162">        Record exportRecord = new Record(exportDouble, now, Flag.VALID);</span>
+<span class="nc" id="L163">        chEnergyExported.setLatestRecord(exportRecord);</span>
+
+<span class="nc" id="L165">        DoubleValue importDouble = new DoubleValue(Double.parseDouble(DF.format(energyImportedKWh)));</span>
+<span class="nc" id="L166">        Record importRecord = new Record(importDouble, now, Flag.VALID);</span>
+<span class="nc" id="L167">        chEnergyImported.setLatestRecord(importRecord);</span>
+
+<span class="nc" id="L169">    }</span>
+
+    /**
+     * Checks if the electric vehicle is charging (Demonstrates how to access a value from a channel and how to set a
+     * value/record)
+     */
+    private void updateEvStatusChannel() {
+        double evPower;
+<span class="nc" id="L177">        String status = &quot;idle&quot;;</span>
+
+        // get current value of the electric vehicle power channel
+<span class="nc" id="L180">        Record lastRecord = chPowerElectricVehicle.getLatestRecord();</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (lastRecord != null) {</span>
+<span class="nc" id="L182">            Value value = lastRecord.getValue();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            if (value != null) {</span>
+<span class="nc" id="L184">                evPower = chPowerElectricVehicle.getLatestRecord().getValue().asDouble();</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">                if (evPower &gt; STANDBY_POWER_CHARGING_STATION) {</span>
+<span class="nc" id="L186">                    status = &quot;charging&quot;;</span>
+                }
+                // set value for virtual channel
+<span class="nc" id="L189">                Record newRecord = new Record(new StringValue(status), System.currentTimeMillis(), Flag.VALID);</span>
+<span class="nc" id="L190">                chEvStatus.setLatestRecord(newRecord);</span>
+            }
+        }
+<span class="nc" id="L193">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CsvTimeChannel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-csv</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.csv.channel</a> &gt; <span class="el_source">CsvTimeChannel.java</span></div><h1>CsvTimeChannel.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.csv.channel;
+
+import java.util.List;
+
+import org.openmuc.framework.driver.csv.exceptions.CsvException;
+import org.openmuc.framework.driver.csv.exceptions.NoValueReceivedYetException;
+import org.openmuc.framework.driver.csv.exceptions.TimeTravelException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class CsvTimeChannel implements CsvChannel {
+
+<span class="fc" id="L33">    private static final Logger LOGGER = LoggerFactory.getLogger(CsvTimeChannel.class);</span>
+
+    /** remember index of last valid sampled value */
+<span class="fc" id="L36">    protected int lastReadIndex = 0;</span>
+
+    protected int maxIndex;
+    protected List&lt;String&gt; data;
+    protected boolean rewind;
+<span class="fc" id="L41">    protected boolean isInitialised = false;</span>
+    long[] timestamps;
+    long firstTimestamp;
+    long lastTimestamp;
+
+<span class="fc" id="L46">    public CsvTimeChannel(List&lt;String&gt; data, boolean rewind, long[] timestamps) {</span>
+<span class="fc" id="L47">        this.data = data;</span>
+<span class="fc" id="L48">        this.maxIndex = data.size() - 1;</span>
+<span class="fc" id="L49">        this.rewind = rewind;</span>
+<span class="fc" id="L50">        this.timestamps = timestamps;</span>
+<span class="fc" id="L51">        this.firstTimestamp = timestamps[0];</span>
+<span class="fc" id="L52">        this.lastTimestamp = timestamps[timestamps.length - 1];</span>
+<span class="fc" id="L53">    }</span>
+
+    protected int searchNextIndex(long samplingTime) throws CsvException {
+        int index;
+
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (isWithinTimeperiod(samplingTime)) {</span>
+<span class="fc" id="L59">            index = handleWithinTimeperiod(samplingTime);</span>
+        }
+        else { // is outside time period
+<span class="fc" id="L62">            index = handleOutsideTimeperiod(samplingTime);</span>
+        }
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (!isInitialised) {</span>
+<span class="fc" id="L66">            isInitialised = true;</span>
+        }
+<span class="fc" id="L68">        return index;</span>
+    }
+
+    private int handleWithinTimeperiod(long samplingTime) throws CsvException {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (isBehindLastReadIndex(samplingTime)) {</span>
+<span class="fc" id="L73">            return getIndexByRegularSearch(samplingTime);</span>
+        }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        else if (isBeforeLastReadIndex(samplingTime)) {</span>
+<span class="fc" id="L76">            return handleBeforeLastReadIndex(samplingTime);</span>
+        }
+        else { // is same timestamp
+<span class="fc" id="L79">            return lastReadIndex;</span>
+        }
+    }
+
+    private int handleBeforeLastReadIndex(long samplingTime) throws CsvException {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (rewind) {</span>
+<span class="fc" id="L85">            rewindIndex();</span>
+<span class="fc" id="L86">            return getIndexByRegularSearch(samplingTime);</span>
+        }
+        else { // rewind disabled
+<span class="fc" id="L89">            throw new TimeTravelException(</span>
+                    &quot;Current sampling time is before the last sampling time. Since rewind is disabled, driver can't get value for current sampling time.&quot;);
+        }
+    }
+
+    private int handleOutsideTimeperiod(long samplingTime) throws CsvException {
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (isBeforeFirstTimestamp(samplingTime)) {</span>
+<span class="nc" id="L96">            return handleOutsideTimeperiodEarly(samplingTime);</span>
+        }
+        else { // is after last timestamp
+<span class="fc" id="L99">            LOGGER.warn(</span>
+                    &quot;Current sampling time is behind last available timestamp of csv file. Returning value corresponding to last timestamp in file.&quot;);
+<span class="fc" id="L101">            return maxIndex;</span>
+        }
+    }
+
+    /**
+     * Search in chronological order beginning from last read index. This is the regular case since the samplingTime
+     * will normally increase with each read called*
+     */
+    private int getIndexByRegularSearch(long samplingTime) {
+
+        long nextTimestamp;
+        int nextIndex;
+
+        do {
+<span class="fc" id="L115">            nextIndex = lastReadIndex + 1;</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">            if (nextIndex &gt; maxIndex) {</span>
+<span class="nc" id="L117">                return maxIndex;</span>
+            }
+<span class="fc" id="L119">            nextTimestamp = timestamps[nextIndex];</span>
+<span class="fc" id="L120">            lastReadIndex = nextIndex;</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        } while (samplingTime &gt; nextTimestamp);</span>
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (samplingTime == nextTimestamp) {</span>
+<span class="fc" id="L124">            return nextIndex;</span>
+        }
+        else {
+<span class="fc" id="L127">            return nextIndex - 1;</span>
+        }
+
+    }
+
+    private boolean isBeforeLastReadIndex(long samplingTime) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (samplingTime &lt; timestamps[lastReadIndex]) {</span>
+<span class="fc" id="L134">            return true;</span>
+        }
+        else {
+<span class="fc" id="L137">            return false;</span>
+        }
+    }
+
+    private void rewindIndex() {
+<span class="fc" id="L142">        lastReadIndex = 0;</span>
+<span class="fc" id="L143">    }</span>
+
+    private boolean isBehindLastReadIndex(long samplingTime) {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (samplingTime &gt; timestamps[lastReadIndex]) {</span>
+<span class="fc" id="L147">            return true;</span>
+        }
+        else {
+<span class="fc" id="L150">            return false;</span>
+        }
+    }
+
+    private int handleOutsideTimeperiodEarly(long samplingTime) throws CsvException {
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        if (isInitialised) {</span>
+<span class="fc" id="L156">            throw new TimeTravelException(</span>
+                    &quot;Illogical time jump for sampling time. Driver can't find corresponding value in csv file.&quot;);
+        }
+        else {
+<span class="fc" id="L160">            throw new NoValueReceivedYetException(&quot;Sampling time before first timestamp of csv file.&quot;);</span>
+        }
+    }
+
+    private boolean isWithinTimeperiod(long samplingTime) {
+<span class="fc bfc" id="L165" title="All 4 branches covered.">        if (samplingTime &gt;= firstTimestamp &amp;&amp; samplingTime &lt;= lastTimestamp) {</span>
+<span class="fc" id="L166">            return true;</span>
+        }
+        else {
+<span class="fc" id="L169">            return false;</span>
+        }
+    }
+
+    private boolean isBeforeFirstTimestamp(long samplingTime) {
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        if (samplingTime &lt; firstTimestamp) {</span>
+<span class="fc" id="L176">            return true;</span>
+        }
+        else {
+<span class="fc" id="L179">            return false;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

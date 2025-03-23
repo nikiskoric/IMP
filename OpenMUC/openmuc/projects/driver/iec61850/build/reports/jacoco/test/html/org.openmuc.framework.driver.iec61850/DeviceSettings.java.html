@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeviceSettings.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-iec61850</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.iec61850</a> &gt; <span class="el_source">DeviceSettings.java</span></div><h1>DeviceSettings.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.driver.iec61850;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+
+public class DeviceSettings {
+<span class="fc" id="L27">    private String authentication = null;</span>
+<span class="fc" id="L28">    private byte[] tSelLocal = new byte[] { 0, 0 };</span>
+<span class="fc" id="L29">    private byte[] tSelRemote = new byte[] { 0, 1 };</span>
+
+<span class="fc" id="L31">    public DeviceSettings(String settings) throws ArgumentSyntaxException {</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (!settings.isEmpty()) {</span>
+<span class="fc" id="L33">            String[] args = settings.split(&quot;\\s+&quot;, 0);</span>
+<span class="pc bpc" id="L34" title="1 of 4 branches missed.">            if (args.length &gt; 6 || args.length &lt; 4) {</span>
+<span class="fc" id="L35">                throw new ArgumentSyntaxException(</span>
+                        &quot;Less than 4 or more than 6 arguments in the settings are not allowed.&quot;);
+            }
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            for (int i = 0; i &lt; args.length; i += 2) {</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">                if (args[i].equals(&quot;-a&quot;)) {</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">                    if (args[i + 1].equals(&quot;-lt&quot;)) {</span>
+<span class="fc" id="L41">                        throw new ArgumentSyntaxException(</span>
+                                &quot;No authentication parameter was specified after the -a parameter&quot;);
+                    }
+<span class="fc" id="L44">                    authentication = args[i + 1];</span>
+                }
+<span class="fc bfc" id="L46" title="All 2 branches covered.">                else if (args[i].equals(&quot;-lt&quot;)) {</span>
+<span class="pc bpc" id="L47" title="1 of 4 branches missed.">                    if (i == (args.length - 1) || args[i + 1].startsWith(&quot;-&quot;)) {</span>
+<span class="fc" id="L48">                        this.tSelLocal = new byte[0];</span>
+                    }
+                    else {
+<span class="fc" id="L51">                        this.tSelLocal = new byte[args[i + 1].length()];</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">                        for (int j = 0; j &lt; args[i + 1].length(); j++) {</span>
+<span class="fc" id="L53">                            tSelLocal[j] = (byte) args[i + 1].charAt(j);</span>
+                        }
+                    }
+                }
+<span class="fc bfc" id="L57" title="All 2 branches covered.">                else if (args[i].equals(&quot;-rt&quot;)) {</span>
+<span class="pc bpc" id="L58" title="2 of 4 branches missed.">                    if (i == (args.length - 1) || args[i + 1].startsWith(&quot;-&quot;)) {</span>
+<span class="nc" id="L59">                        this.tSelRemote = new byte[0];</span>
+                    }
+                    else {
+<span class="fc" id="L62">                        this.tSelRemote = new byte[args[i + 1].length()];</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                        for (int j = 0; j &lt; args[i + 1].length(); j++) {</span>
+<span class="fc" id="L64">                            tSelRemote[j] = (byte) args[i + 1].charAt(j);</span>
+                        }
+                    }
+                }
+                else {
+<span class="fc" id="L69">                    throw new ArgumentSyntaxException(&quot;Unexpected argument: &quot; + args[i]);</span>
+                }
+            }
+        }
+<span class="fc" id="L73">    }</span>
+
+    public String getAuthentication() {
+<span class="fc" id="L76">        return authentication;</span>
+    }
+
+    public byte[] getTSelLocal() {
+<span class="fc" id="L80">        return tSelLocal;</span>
+    }
+
+    public byte[] getTSelRemote() {
+<span class="fc" id="L84">        return tSelRemote;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MqttLoggerProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-datalogger-mqtt</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.datalogger.mqtt</a> &gt; <span class="el_source">MqttLoggerProperties.java</span></div><h1>MqttLoggerProperties.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.datalogger.mqtt;
+
+import static org.openmuc.framework.lib.mqtt.MqttSettings.ProxySettings.PROXY_HTTP;
+import static org.openmuc.framework.lib.mqtt.MqttSettings.ProxySettings.PROXY_HTTP_WITH_USER;
+import static org.openmuc.framework.lib.mqtt.MqttSettings.ProxySettings.PROXY_SOCKS4;
+import static org.openmuc.framework.lib.mqtt.MqttSettings.ProxySettings.PROXY_SOCKS5;
+
+import org.openmuc.framework.lib.osgi.config.GenericSettings;
+import org.openmuc.framework.lib.osgi.config.PropertyHandler;
+import org.openmuc.framework.lib.osgi.config.ServiceProperty;
+
+/**
+ * Holds default values that are written into the property file, if it does not exist.
+ */
+public class MqttLoggerProperties extends GenericSettings {
+
+    static final String PORT = &quot;port&quot;;
+    static final String HOST = &quot;host&quot;;
+    static final String LOCAL_PORT = &quot;localPort&quot;;
+    static final String LOCAL_ADDRESS = &quot;localAddress&quot;;
+    static final String SSL = &quot;ssl&quot;;
+    static final String USERNAME = &quot;username&quot;;
+    static final String PASSWORD = &quot;password&quot;;
+    static final String PARSER = &quot;parser&quot;;
+    static final String MULTIPLE = &quot;multiple&quot;;
+    static final String MAX_FILE_COUNT = &quot;maxFileCount&quot;;
+    static final String MAX_FILE_SIZE = &quot;maxFileSize&quot;;
+    static final String MAX_BUFFER_SIZE = &quot;maxBufferSize&quot;;
+    static final String CONNECTION_RETRY_INTERVAL = &quot;connectionRetryInterval&quot;;
+    static final String CONNECTION_ALIVE_INTERVAL = &quot;connectionAliveInterval&quot;;
+    static final String PERSISTENCE_DIRECTORY = &quot;persistenceDirectory&quot;;
+    static final String LAST_WILL_TOPIC = &quot;lastWillTopic&quot;;
+    static final String LAST_WILL_PAYLOAD = &quot;lastWillPayload&quot;;
+    static final String LAST_WILL_ALWAYS = &quot;lastWillAlways&quot;;
+    static final String FIRST_WILL_TOPIC = &quot;firstWillTopic&quot;;
+    static final String FIRST_WILL_PAYLOAD = &quot;firstWillPayload&quot;;
+    static final String RECOVERY_CHUNK_SIZE = &quot;recoveryChunkSize&quot;;
+    static final String RECOVERY_DELAY = &quot;recoveryDelay&quot;;
+    static final String WEB_SOCKET = &quot;webSocket&quot;;
+    static final String PROXY_CONFIG = &quot;proxyConfiguration&quot;;
+
+    public MqttLoggerProperties() {
+<span class="fc" id="L64">        super();</span>
+        // properties for connection
+<span class="fc" id="L66">        properties.put(PORT, new ServiceProperty(PORT, &quot;port for MQTT communication&quot;, &quot;1883&quot;, true));</span>
+<span class="fc" id="L67">        properties.put(HOST, new ServiceProperty(HOST, &quot;URL of MQTT broker&quot;, &quot;localhost&quot;, true));</span>
+<span class="fc" id="L68">        properties.put(SSL, new ServiceProperty(SSL, &quot;usage of ssl true/false&quot;, &quot;false&quot;, true));</span>
+<span class="fc" id="L69">        properties.put(USERNAME, new ServiceProperty(USERNAME, &quot;name of your MQTT account&quot;, null, false));</span>
+<span class="fc" id="L70">        properties.put(PASSWORD, new ServiceProperty(PASSWORD, &quot;password of your MQTT account&quot;, null, false));</span>
+<span class="fc" id="L71">        properties.put(LOCAL_PORT, new ServiceProperty(LOCAL_PORT, &quot;local port for MQTT communication&quot;, &quot;0&quot;, false));</span>
+<span class="fc" id="L72">        properties.put(LOCAL_ADDRESS,</span>
+                new ServiceProperty(LOCAL_ADDRESS, &quot;local address for MQTT communication&quot;, null, false));
+<span class="fc" id="L74">        properties.put(PARSER,</span>
+                new ServiceProperty(PARSER, &quot;identifier of needed parser implementation&quot;, &quot;openmuc&quot;, true));
+<span class="fc" id="L76">        properties.put(WEB_SOCKET, new ServiceProperty(WEB_SOCKET, &quot;usage of WebSocket true/false&quot;, &quot;false&quot;, true));</span>
+
+        // properties for recovery / file buffering
+<span class="fc" id="L79">        properties.put(CONNECTION_RETRY_INTERVAL,</span>
+                new ServiceProperty(CONNECTION_RETRY_INTERVAL, &quot;connection retry interval in s&quot;, &quot;10&quot;, true));
+<span class="fc" id="L81">        properties.put(CONNECTION_ALIVE_INTERVAL,</span>
+                new ServiceProperty(CONNECTION_ALIVE_INTERVAL, &quot;connection alive interval in s&quot;, &quot;10&quot;, true));
+<span class="fc" id="L83">        properties.put(PERSISTENCE_DIRECTORY, new ServiceProperty(PERSISTENCE_DIRECTORY,</span>
+                &quot;directory for file buffered messages&quot;, &quot;data/logger/mqtt&quot;, false));
+<span class="fc" id="L85">        properties.put(MULTIPLE, new ServiceProperty(MULTIPLE,</span>
+                &quot;if true compose log records of different channels to one mqtt message&quot;, &quot;false&quot;, true));
+<span class="fc" id="L87">        properties.put(MAX_FILE_COUNT,</span>
+                new ServiceProperty(MAX_FILE_COUNT, &quot;file buffering: number of files to be created&quot;, &quot;2&quot;, true));
+<span class="fc" id="L89">        properties.put(MAX_FILE_SIZE,</span>
+                new ServiceProperty(MAX_FILE_SIZE, &quot;file buffering: file size in kB&quot;, &quot;5000&quot;, true));
+<span class="fc" id="L91">        properties.put(MAX_BUFFER_SIZE,</span>
+                new ServiceProperty(MAX_BUFFER_SIZE, &quot;file buffering: buffer size in kB&quot;, &quot;1000&quot;, true));
+<span class="fc" id="L93">        properties.put(RECOVERY_CHUNK_SIZE, new ServiceProperty(RECOVERY_CHUNK_SIZE,</span>
+                &quot;number of messages which will be recovered simultaneously, 0 = disabled&quot;, &quot;0&quot;, false));
+<span class="fc" id="L95">        properties.put(RECOVERY_DELAY, new ServiceProperty(RECOVERY_DELAY,</span>
+                &quot;delay between recovery chunk sending in ms, 0 = disabled&quot;, &quot;0&quot;, false));
+
+        // properties for LAST WILL / FIRST WILL
+<span class="fc" id="L99">        properties.put(LAST_WILL_TOPIC,</span>
+                new ServiceProperty(LAST_WILL_TOPIC, &quot;topic on which lastWillPayload will be published&quot;, &quot;&quot;, false));
+<span class="fc" id="L101">        properties.put(LAST_WILL_PAYLOAD, new ServiceProperty(LAST_WILL_PAYLOAD,</span>
+                &quot;payload which will be published after (unwanted) disconnect&quot;, &quot;&quot;, false));
+<span class="fc" id="L103">        properties.put(LAST_WILL_ALWAYS, new ServiceProperty(LAST_WILL_ALWAYS,</span>
+                &quot;send the last will also on planned disconnects&quot;, &quot;false&quot;, false));
+<span class="fc" id="L105">        properties.put(FIRST_WILL_TOPIC,</span>
+                new ServiceProperty(FIRST_WILL_TOPIC, &quot;topic on which firstWillPayload will be published&quot;, &quot;&quot;, false));
+<span class="fc" id="L107">        properties.put(FIRST_WILL_PAYLOAD,</span>
+                new ServiceProperty(FIRST_WILL_PAYLOAD, &quot;payload which will be published after connect&quot;, &quot;&quot;, false));
+<span class="fc" id="L109">        properties.put(PROXY_CONFIG,</span>
+                new ServiceProperty(PROXY_CONFIG, &quot;Proxy to use to connect to broker. Supported formats: &quot;
+                        + PROXY_HTTP_WITH_USER + &quot; or &quot; + PROXY_HTTP + &quot; or &quot; + PROXY_SOCKS4 + &quot; or &quot; + PROXY_SOCKS5,
+                        &quot;&quot;, false));
+<span class="fc" id="L113">    }</span>
+
+    public static MqttLoggerSettings parse(PropertyHandler propertyHandler) {
+        // @formatter:off
+        // do not use retained messages for logging (reason: caused the logger not to log anymore on first try, also
+        // should not be necessary for logging because we have buffering)
+<span class="fc" id="L119">        boolean noRetainedMessagesSupportedForLogging = false;</span>
+<span class="fc" id="L120">        return new MqttLoggerSettings(</span>
+<span class="fc" id="L121">                propertyHandler.getString(MqttLoggerProperties.HOST),</span>
+<span class="fc" id="L122">                propertyHandler.getInt(MqttLoggerProperties.PORT),</span>
+<span class="fc" id="L123">                propertyHandler.getInt(MqttLoggerProperties.LOCAL_PORT),</span>
+<span class="fc" id="L124">                propertyHandler.getString(MqttLoggerProperties.LOCAL_ADDRESS),</span>
+<span class="fc" id="L125">                propertyHandler.getString(MqttLoggerProperties.USERNAME),</span>
+<span class="fc" id="L126">                propertyHandler.getString(MqttLoggerProperties.PASSWORD),</span>
+<span class="fc" id="L127">                propertyHandler.getBoolean(MqttLoggerProperties.SSL),</span>
+<span class="fc" id="L128">                propertyHandler.getInt(MqttLoggerProperties.MAX_BUFFER_SIZE),</span>
+<span class="fc" id="L129">                propertyHandler.getInt(MqttLoggerProperties.MAX_FILE_SIZE),</span>
+<span class="fc" id="L130">                propertyHandler.getInt(MqttLoggerProperties.MAX_FILE_COUNT),</span>
+<span class="fc" id="L131">                propertyHandler.getInt(MqttLoggerProperties.CONNECTION_RETRY_INTERVAL),</span>
+<span class="fc" id="L132">                propertyHandler.getInt(MqttLoggerProperties.CONNECTION_ALIVE_INTERVAL),</span>
+<span class="fc" id="L133">                propertyHandler.getString(MqttLoggerProperties.PERSISTENCE_DIRECTORY),</span>
+<span class="fc" id="L134">                propertyHandler.getString(MqttLoggerProperties.LAST_WILL_TOPIC),</span>
+<span class="fc" id="L135">                propertyHandler.getString(MqttLoggerProperties.LAST_WILL_PAYLOAD).getBytes(),</span>
+<span class="fc" id="L136">                propertyHandler.getBoolean(MqttLoggerProperties.LAST_WILL_ALWAYS),</span>
+<span class="fc" id="L137">                propertyHandler.getString(MqttLoggerProperties.FIRST_WILL_TOPIC),</span>
+<span class="fc" id="L138">                propertyHandler.getString(MqttLoggerProperties.FIRST_WILL_PAYLOAD).getBytes(),</span>
+<span class="fc" id="L139">                propertyHandler.getInt(MqttLoggerProperties.RECOVERY_CHUNK_SIZE),</span>
+<span class="fc" id="L140">                propertyHandler.getInt(MqttLoggerProperties.RECOVERY_DELAY),</span>
+<span class="fc" id="L141">                propertyHandler.getBoolean(MqttLoggerProperties.WEB_SOCKET),</span>
+                noRetainedMessagesSupportedForLogging,
+<span class="fc" id="L143">                propertyHandler.getString(MqttLoggerProperties.PROXY_CONFIG),</span>
+<span class="fc" id="L144">                propertyHandler.getString(MqttLoggerProperties.PARSER),</span>
+<span class="fc" id="L145">                propertyHandler.getBoolean(MqttLoggerProperties.MULTIPLE));</span>
+        // @formatter:on
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

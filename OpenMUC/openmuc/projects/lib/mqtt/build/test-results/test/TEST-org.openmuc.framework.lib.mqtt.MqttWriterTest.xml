@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.lib.mqtt.MqttWriterTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-12-18T10:42:33" hostname="TEA" time="1.314">
+  <properties/>
+  <testcase name="testWriteWithReconnectionAndSimulatedDisconnection()" classname="org.openmuc.framework.lib.mqtt.MqttWriterTest" time="1.314"/>
+  <system-out><![CDATA[11:42:33.919 [Test worker] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] connected to broker UNKNOWN:UNKNOWN
+11:42:33.920 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing memory (RAM) buffer.
+11:42:33.920 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Memory buffer already empty.
+11:42:33.922 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty memory buffer done.
+11:42:33.922 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing file buffer.
+11:42:33.927 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty file buffer done.
+11:42:34.104 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttWriter - Disconnected
+11:42:34.112 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] Connection lost: broker 'test'. Cause: 'test'
+11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.113 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.113 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttBufferHandler - move buffered messages from RAM to file
+11:42:34.113 [Test worker] INFO org.openmuc.framework.lib.filePersistence.FilePersistence - create new file: C:\tmp\openmuc\mqtt_writer_test\topic1\buffer.0.log
+11:42:34.116 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.116 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.116 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.116 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttBufferHandler - move buffered messages from RAM to file
+11:42:34.117 [Test worker] INFO org.openmuc.framework.lib.filePersistence.FilePersistence - move file from: \tmp\openmuc\mqtt_writer_test\topic1\buffer.0.log to \tmp\openmuc\mqtt_writer_test\topic1\buffer.1.log
+11:42:34.119 [Test worker] WARN org.openmuc.framework.lib.mqtt.MqttWriter - [test] No connection to broker - adding message to buffer
+11:42:34.119 [Test worker] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] connected to broker UNKNOWN:UNKNOWN
+11:42:34.121 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing memory (RAM) buffer.
+11:42:34.136 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty memory buffer done.
+11:42:34.136 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Clearing file buffer.
+11:42:34.151 [MqttRecovery] INFO org.openmuc.framework.lib.mqtt.MqttWriter - [test] Empty file buffer done.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

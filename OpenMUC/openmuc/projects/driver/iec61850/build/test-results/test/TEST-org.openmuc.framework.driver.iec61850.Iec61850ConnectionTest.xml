@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.driver.iec61850.Iec61850ConnectionTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:43:19" hostname="TEA" time="0.725">
+  <properties/>
+  <testcase name="testWrite()" classname="org.openmuc.framework.driver.iec61850.Iec61850ConnectionTest" time="0.596"/>
+  <testcase name="testRead()" classname="org.openmuc.framework.driver.iec61850.Iec61850ConnectionTest" time="0.076"/>
+  <testcase name="testScanForChannels()" classname="org.openmuc.framework.driver.iec61850.Iec61850ConnectionTest" time="0.049"/>
+  <system-out><![CDATA[IED Server is running
+Attempting to connect to server 127.0.0.1 on port 59427
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod)
+11:43:19.624 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod [ST]
+NewIEDLDevice1/LLN0.Mod.stVal: 0
+NewIEDLDevice1/LLN0.Mod.q: 0000
+NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+11:43:19.630 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.stVal: 0
+11:43:19.630 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.q: 0000
+11:43:19.630 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.stVal)
+11:43:19.639 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.q)
+11:43:19.640 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.t)
+11:43:19.641 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod)
+11:43:19.641 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod [CF]
+NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+11:43:19.641 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.ctlModel)
+11:43:19.643 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh)
+11:43:19.643 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh [ST]
+NewIEDLDevice1/LLN0.Beh.stVal: 0
+NewIEDLDevice1/LLN0.Beh.q: 0000
+NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+11:43:19.644 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.stVal: 0
+11:43:19.644 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.q: 0000
+11:43:19.644 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.stVal)
+11:43:19.645 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.q)
+11:43:19.646 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.t)
+11:43:19.647 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Health)
+11:43:19.648 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health [ST]
+NewIEDLDevice1/LLN0.Health.stVal: 0
+NewIEDLDevice1/LLN0.Health.q: 0000
+NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+11:43:19.648 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.stVal: 0
+11:43:19.649 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.q: 0000
+11:43:19.649 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.stVal)
+11:43:19.649 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.q)
+11:43:19.650 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.t)
+11:43:19.651 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt)
+11:43:19.651 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt [DC]
+NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+NewIEDLDevice1/LLN0.NamPlt.d: ''
+NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+11:43:19.651 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+11:43:19.653 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+11:43:19.653 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.d: ''
+11:43:19.653 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.vendor)
+11:43:19.653 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.swRev)
+11:43:19.654 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.d)
+11:43:19.655 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.d: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.configRev)
+11:43:19.655 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc)
+11:43:19.655 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc [DC]
+NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+11:43:19.657 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+11:43:19.657 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+11:43:19.657 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+11:43:19.657 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+11:43:19.657 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+11:43:19.658 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+11:43:19.659 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+11:43:19.659 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+11:43:19.659 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+11:43:19.659 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+11:43:19.659 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.stVal)
+11:43:19.663 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.q)
+11:43:19.664 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.t)
+11:43:19.664 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.stSeld)
+11:43:19.665 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd)
+11:43:19.666 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.opOk)
+11:43:19.666 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk)
+11:43:19.667 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subEna)
+11:43:19.668 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subVal)
+11:43:19.668 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subQ)
+11:43:19.669 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subID)
+11:43:19.670 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.blkEna)
+11:43:19.671 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel)
+11:43:19.671 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout)
+11:43:19.672 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.sboClass)
+11:43:19.672 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout)
+11:43:19.674 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.d)
+11:43:19.674 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.dU)
+11:43:19.675 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs)
+11:43:19.675 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.cdcName)
+11:43:19.676 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+11:43:19.723 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a Write request
+11:43:19.725 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a SetDataValues request.
+11:43:19.726 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a Write request
+11:43:19.726 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a SetDataValues request.
+11:43:19.726 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a Write request
+11:43:19.726 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a SetDataValues request.
+11:43:19.727 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.stVal: 0
+11:43:19.732 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.q: 0000
+11:43:19.733 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+11:43:19.734 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+11:43:19.735 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.stVal: 0
+11:43:19.735 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.q: 0000
+11:43:19.735 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+11:43:19.736 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.stVal: 0
+11:43:19.736 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.q: 0000
+11:43:19.737 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+11:43:19.737 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+11:43:19.739 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+11:43:19.740 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.d: ''
+11:43:19.740 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+11:43:19.741 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 44
+11:43:19.741 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+11:43:19.742 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+11:43:19.742 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+11:43:19.745 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+11:43:19.746 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+11:43:19.747 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+11:43:19.747 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+11:43:19.747 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+11:43:19.748 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+11:43:19.748 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subID: true
+11:43:19.750 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 12.5
+11:43:19.751 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+11:43:19.751 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+11:43:19.752 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+11:43:19.752 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+11:43:19.753 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+11:43:19.753 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+11:43:19.754 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+11:43:19.754 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+11:43:19.768 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Connection was closed by client.
+IED Server is running
+Attempting to connect to server 127.0.0.1 on port 54657
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod)
+11:43:19.811 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod [ST]
+NewIEDLDevice1/LLN0.Mod.stVal: 0
+NewIEDLDevice1/LLN0.Mod.q: 0000
+NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+11:43:19.811 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.stVal: 0
+11:43:19.811 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.q: 0000
+11:43:19.811 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.stVal)
+11:43:19.813 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.q)
+11:43:19.813 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.t)
+11:43:19.813 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod)
+11:43:19.814 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod [CF]
+NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+11:43:19.814 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.ctlModel)
+11:43:19.815 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh)
+11:43:19.815 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh [ST]
+NewIEDLDevice1/LLN0.Beh.stVal: 0
+NewIEDLDevice1/LLN0.Beh.q: 0000
+NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+11:43:19.815 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.stVal: 0
+11:43:19.816 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.q: 0000
+11:43:19.816 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.stVal)
+11:43:19.816 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.q)
+11:43:19.817 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.t)
+11:43:19.817 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Health)
+11:43:19.818 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health [ST]
+NewIEDLDevice1/LLN0.Health.stVal: 0
+NewIEDLDevice1/LLN0.Health.q: 0000
+NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+11:43:19.818 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.stVal: 0
+11:43:19.818 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.q: 0000
+11:43:19.818 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.stVal)
+11:43:19.819 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.q)
+11:43:19.819 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.t)
+11:43:19.821 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt)
+11:43:19.821 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt [DC]
+NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+NewIEDLDevice1/LLN0.NamPlt.d: ''
+NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+11:43:19.821 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+11:43:19.822 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+11:43:19.822 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.d: ''
+11:43:19.822 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.vendor)
+11:43:19.822 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.swRev)
+11:43:19.823 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.d)
+11:43:19.824 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.d: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.configRev)
+11:43:19.824 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc)
+11:43:19.825 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc [DC]
+NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+11:43:19.825 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+11:43:19.825 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+11:43:19.826 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+11:43:19.827 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+11:43:19.827 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+11:43:19.827 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+11:43:19.827 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+11:43:19.827 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+11:43:19.827 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.stVal)
+11:43:19.828 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.q)
+11:43:19.828 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.t)
+11:43:19.829 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.stSeld)
+11:43:19.830 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd)
+11:43:19.830 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.opOk)
+11:43:19.831 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk)
+11:43:19.831 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subEna)
+11:43:19.831 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subVal)
+11:43:19.833 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subQ)
+11:43:19.834 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subID)
+11:43:19.834 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.blkEna)
+11:43:19.834 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel)
+11:43:19.835 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout)
+11:43:19.835 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.sboClass)
+11:43:19.836 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout)
+11:43:19.836 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.d)
+11:43:19.837 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.dU)
+11:43:19.838 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs)
+11:43:19.838 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.cdcName)
+11:43:19.839 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+11:43:19.841 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+11:43:19.841 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+11:43:19.841 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+11:43:19.842 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+11:43:19.842 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+11:43:19.843 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+11:43:19.843 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+11:43:19.843 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+11:43:19.844 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+11:43:19.844 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+11:43:19.844 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+11:43:19.845 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+11:43:19.845 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+11:43:19.845 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+11:43:19.846 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+11:43:19.846 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+11:43:19.847 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+11:43:19.847 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+11:43:19.847 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+11:43:19.848 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+recordContainer:value: [64]; timestamp: 1739184199841; flag: VALID
+recordContainer:value: [64]; timestamp: 1739184199841; flag: VALID
+11:43:19.863 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Connection was closed by client.
+IED Server is running
+Attempting to connect to server 127.0.0.1 on port 57578
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod)
+11:43:19.884 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod [ST]
+NewIEDLDevice1/LLN0.Mod.stVal: 0
+NewIEDLDevice1/LLN0.Mod.q: 0000
+NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+11:43:19.885 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.stVal: 0
+11:43:19.885 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.q: 0000
+11:43:19.885 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.stVal)
+11:43:19.886 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.q)
+11:43:19.886 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.t)
+11:43:19.886 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod)
+11:43:19.888 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod [CF]
+NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+11:43:19.888 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Mod.ctlModel)
+11:43:19.888 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Mod.ctlModel: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh)
+11:43:19.889 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh [ST]
+NewIEDLDevice1/LLN0.Beh.stVal: 0
+NewIEDLDevice1/LLN0.Beh.q: 0000
+NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+11:43:19.889 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.stVal: 0
+11:43:19.889 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.q: 0000
+11:43:19.889 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.stVal)
+11:43:19.890 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.q)
+11:43:19.890 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Beh.t)
+11:43:19.891 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Beh.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Health)
+11:43:19.891 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health [ST]
+NewIEDLDevice1/LLN0.Health.stVal: 0
+NewIEDLDevice1/LLN0.Health.q: 0000
+NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+11:43:19.891 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.stVal: 0
+11:43:19.891 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.q: 0000
+11:43:19.891 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.stVal)
+11:43:19.893 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.stVal: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.q)
+11:43:19.893 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.q: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.Health.t)
+11:43:19.893 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.Health.t: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt)
+11:43:19.894 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt [DC]
+NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+NewIEDLDevice1/LLN0.NamPlt.d: ''
+NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+11:43:19.894 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+11:43:19.894 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+11:43:19.894 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.d: ''
+11:43:19.894 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.vendor)
+11:43:19.895 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.vendor: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.swRev)
+11:43:19.895 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.swRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.d)
+11:43:19.897 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.d: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.NamPlt.configRev)
+11:43:19.897 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.NamPlt.configRev: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc)
+11:43:19.898 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc [DC]
+NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+11:43:19.898 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+11:43:19.898 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+11:43:19.899 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+11:43:19.900 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+11:43:19.900 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+11:43:19.900 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - sub BDA is:NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.stVal)
+11:43:19.901 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stVal: 40
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.q)
+11:43:19.902 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.q: 0200
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.t)
+11:43:19.903 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.t: 0000
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.stSeld)
+11:43:19.903 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.stSeld: 00
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd)
+11:43:19.904 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd: 04, data change: false, data update: false, quality change:false, integrity period: false, GI: true
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.opOk)
+11:43:19.904 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.opOk: 441763200000
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk)
+11:43:19.905 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk: []
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subEna)
+11:43:19.905 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subEna: ''
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subVal)
+11:43:19.907 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subVal: 
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subQ)
+11:43:19.907 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subQ: 1970-01-01T00:00:00Z
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.subID)
+11:43:19.908 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.subID: false
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.blkEna)
+11:43:19.908 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.blkEna: 0.0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel)
+11:43:19.909 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.ctlModel: 0.0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout)
+11:43:19.909 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboTimeout: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.sboClass)
+11:43:19.909 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.sboClass: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout)
+11:43:19.910 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.operTimeout: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.d)
+11:43:19.910 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.d: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.dU)
+11:43:19.910 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.dU: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs)
+11:43:19.912 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcNs: 0
+calling GetDataValues(NewIEDLDevice1/LLN0.TestOpenmuc.cdcName)
+11:43:19.912 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Got a GetDataValues request for node: NewIEDLDevice1/LLN0.TestOpenmuc.cdcName: 0
+NewIEDLDevice1/LLN0.TestOpenmuc.stVal:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.q:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.t:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.stSeld:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.opRcvd:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.opOk:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.tOpOk:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.subEna:DC
+NewIEDLDevice1/LLN0.TestOpenmuc.subVal:DC
+11:43:19.914 [iec61850bean-server-thread-1] DEBUG com.beanit.iec61850bean.ServerAssociation - Connection was closed by client.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,4 @@
+device_id,device_name,device_address,logging_interval,channel_id,channel_name,channel_address,unit,sampling_interval
+1,Device One,/dev/one,5s,c1,Channel One,/chan/one,kW,5s
+1,Device One,/dev/one,5s,c2,Channel Two,/chan/two,kW,5s
+2,Device Two,/dev/two,15s,c3,Channel Three,/chan/three,MW,15s

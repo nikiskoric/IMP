@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - MqttSettingsTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>MqttSettingsTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/org.openmuc.framework.lib.mqtt.html">org.openmuc.framework.lib.mqtt</a> &gt; MqttSettingsTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">11</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">5.501s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">exampleProxiesWork()</td>
+<td class="success">0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">noProxyAppliedIfNoConfigProvided()</td>
+<td class="success">0.594s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">noProxyConfigured()</td>
+<td class="success">0s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">proxySettingsInvalidScheme()</td>
+<td class="success">0.008s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">proxySettingsValidHttpNoUser()</td>
+<td class="success">0.316s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">proxySettingsValidNoUserHttp()</td>
+<td class="success">4.555s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">proxySettingsValidSocks4()</td>
+<td class="success">0.002s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">proxySettingsValidSocks5()</td>
+<td class="success">0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">proxySettingsValidWithUser()</td>
+<td class="success">0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">throwsOnBadConfig()</td>
+<td class="success">0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">validSettingsAreProperlyForwarded()</td>
+<td class="success">0.022s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>11:42:28.320 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+11:42:28.322 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='localhost', port=123, user=&lt;none&gt;, hasPassword=false}
+11:42:28.348 [Test worker] DEBUG io.netty.util.internal.logging.InternalLoggerFactory - Using SLF4J as the default logging framework
+11:42:28.348 [Test worker] DEBUG io.netty.util.NetUtil - -Djava.net.preferIPv4Stack: false
+11:42:28.348 [Test worker] DEBUG io.netty.util.NetUtil - -Djava.net.preferIPv6Addresses: false
+11:42:28.550 [Test worker] DEBUG io.netty.util.NetUtilInitializations - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+11:42:28.586 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false
+11:42:28.587 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - Java version: 11
+11:42:28.588 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.theUnsafe: available
+11:42:28.590 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.copyMemory: available
+11:42:28.591 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.storeFence: available
+11:42:28.592 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.Buffer.address: available
+11:42:28.593 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
+11:42:28.594 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.Bits.unaligned: available, true
+11:42:28.595 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @59f99ea
+11:42:28.600 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.DirectByteBuffer.&lt;init&gt;(long, {int,long}): unavailable
+11:42:28.600 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - sun.misc.Unsafe: available
+11:42:28.627 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - maxDirectMemory: 536870912 bytes (maybe)
+11:42:28.627 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.tmpdir: C:\Users\tdmar\AppData\Local\Temp (java.io.tmpdir)
+11:42:28.628 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+11:42:28.628 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - Platform: Windows
+11:42:28.629 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.maxDirectMemory: -1 bytes
+11:42:28.629 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.uninitializedArrayAllocationThreshold: -1
+11:42:28.631 [Test worker] DEBUG io.netty.util.internal.CleanerJava9 - java.nio.ByteBuffer.cleaner(): available
+11:42:28.632 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.noPreferDirect: false
+11:42:28.634 [Test worker] DEBUG io.netty.util.NetUtil - Failed to get SOMAXCONN from sysctl and file \proc\sys\net\core\somaxconn. Default: 200
+11:42:28.636 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='1.2.3.4', port=5678, user=&lt;none&gt;, hasPassword=false}
+11:42:33.794 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy set
+11:42:33.797 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks4, hostname='host', port=123, user=&lt;none&gt;, hasPassword=false}
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks5, hostname='host', port=123, user=&lt;none&gt;, hasPassword=false}
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='host', port=123, user=&lt;none&gt;, hasPassword=false}
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='host', port=123, user=user, hasPassword=true}
+11:42:33.802 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks4, hostname='154.12.253.232', port=40616, user=&lt;none&gt;, hasPassword=false}
+11:42:33.804 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks5, hostname='64.187.232.70', port=2277, user=&lt;none&gt;, hasPassword=false}
+11:42:33.805 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+11:42:33.805 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='localhost', port=123, user=me, hasPassword=true}
+11:42:33.807 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='utini', port=42, user=foo, hasPassword=true}
+11:42:33.820 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Applied proxy settings
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 7.6.3</a> at Dec 18, 2024, 11:42:35 AM</p>
+</div>
+</div>
+</body>
+</html>

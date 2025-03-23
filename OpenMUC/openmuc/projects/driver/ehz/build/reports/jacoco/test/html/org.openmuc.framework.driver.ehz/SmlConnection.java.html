@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SmlConnection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-ehz</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.ehz</a> &gt; <span class="el_source">SmlConnection.java</span></div><h1>SmlConnection.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.driver.ehz;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.DoubleValue;
+import org.openmuc.framework.data.StringValue;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.openmuc.jrxtx.DataBits;
+import org.openmuc.jrxtx.FlowControl;
+import org.openmuc.jrxtx.Parity;
+import org.openmuc.jrxtx.SerialPort;
+import org.openmuc.jrxtx.SerialPortBuilder;
+import org.openmuc.jrxtx.StopBits;
+import org.openmuc.jsml.structures.ASNObject;
+import org.openmuc.jsml.structures.EMessageBody;
+import org.openmuc.jsml.structures.Integer16;
+import org.openmuc.jsml.structures.Integer32;
+import org.openmuc.jsml.structures.Integer64;
+import org.openmuc.jsml.structures.Integer8;
+import org.openmuc.jsml.structures.OctetString;
+import org.openmuc.jsml.structures.SmlFile;
+import org.openmuc.jsml.structures.SmlListEntry;
+import org.openmuc.jsml.structures.SmlMessage;
+import org.openmuc.jsml.structures.Unsigned16;
+import org.openmuc.jsml.structures.Unsigned32;
+import org.openmuc.jsml.structures.Unsigned64;
+import org.openmuc.jsml.structures.Unsigned8;
+import org.openmuc.jsml.structures.responses.SmlGetListRes;
+import org.openmuc.jsml.transport.SerialReceiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SmlConnection extends GeneralConnection {
+
+<span class="nc" id="L72">    private static Logger logger = LoggerFactory.getLogger(SmlConnection.class);</span>
+
+    private final SerialReceiver receiver;
+    private final SerialPort serialPort;
+
+    // TODO serverId is never used..
+    private String serverId;
+
+    private final ExecutorService threadExecutor;
+
+    private ListenerTask listenerTask;
+
+<span class="nc" id="L84">    public SmlConnection(String serialPortName) throws ConnectionException {</span>
+        try {
+<span class="nc" id="L86">            String actualSerialPortName = resolveSymlink(serialPortName);</span>
+<span class="nc" id="L87">            this.serialPort = setupSerialPort(actualSerialPortName);</span>
+<span class="nc" id="L88">            this.receiver = new SerialReceiver(serialPort);</span>
+<span class="nc" id="L89">        } catch (IOException e) {</span>
+<span class="nc" id="L90">            throw new ConnectionException(e);</span>
+<span class="nc" id="L91">        }</span>
+
+<span class="nc" id="L93">        this.threadExecutor = Executors.newSingleThreadExecutor();</span>
+<span class="nc" id="L94">    }</span>
+
+    @Override
+    public void disconnect() {
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (this.listenerTask != null) {</span>
+<span class="nc" id="L99">            this.listenerTask.stopListening();</span>
+        }
+<span class="nc" id="L101">        this.threadExecutor.shutdown();</span>
+
+        try {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (receiver != null) {</span>
+<span class="nc" id="L105">                receiver.close();</span>
+            }
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (!serialPort.isClosed()) {</span>
+<span class="nc" id="L108">                serialPort.close();</span>
+            }
+<span class="nc" id="L110">        } catch (IOException e) {</span>
+<span class="nc" id="L111">            logger.warn(&quot;Error, while closing serial port.&quot;, e);</span>
+<span class="nc" id="L112">        }</span>
+<span class="nc" id="L113">    }</span>
+
+    @Override
+    public void startListening(final List&lt;ChannelRecordContainer&gt; containers, final RecordsReceivedListener listener)
+            throws ConnectionException {
+<span class="nc" id="L118">        logger.trace(&quot;start listening&quot;);</span>
+
+<span class="nc" id="L120">        this.listenerTask = new ListenerTask(containers, listener);</span>
+<span class="nc" id="L121">        this.threadExecutor.execute(listenerTask);</span>
+<span class="nc" id="L122">    }</span>
+
+    private class ListenerTask implements Runnable {
+
+        private final List&lt;ChannelRecordContainer&gt; containers;
+        private final RecordsReceivedListener listener;
+        private boolean stopListening;
+
+<span class="nc" id="L130">        public ListenerTask(List&lt;ChannelRecordContainer&gt; containers, RecordsReceivedListener listener) {</span>
+<span class="nc" id="L131">            this.containers = containers;</span>
+<span class="nc" id="L132">            this.listener = listener;</span>
+<span class="nc" id="L133">            this.stopListening = false;</span>
+
+<span class="nc" id="L135">        }</span>
+
+        @Override
+        public void run() {
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            while (!this.stopListening) {</span>
+                try {
+<span class="nc" id="L142">                    long timestamp = System.currentTimeMillis();</span>
+<span class="nc" id="L143">                    SmlListEntry[] smlListEntries = retrieveSmlListEntries();</span>
+
+<span class="nc" id="L145">                    addEntriesToContainers(containers, timestamp, smlListEntries);</span>
+<span class="nc" id="L146">                    listener.newRecords(containers);</span>
+<span class="nc" id="L147">                } catch (InterruptedIOException e) {</span>
+<span class="nc" id="L148">                } catch (IOException e) {</span>
+<span class="nc" id="L149">                    listener.connectionInterrupted(&quot;ehz&quot;, SmlConnection.this);</span>
+<span class="nc" id="L150">                }</span>
+            }
+
+<span class="nc" id="L153">        }</span>
+
+        public void stopListening() {
+<span class="nc" id="L156">            this.stopListening = true;</span>
+<span class="nc" id="L157">        }</span>
+
+    }
+
+    @Override
+    public void read(List&lt;ChannelRecordContainer&gt; containers, int timeout) throws ConnectionException {
+<span class="nc" id="L163">        logger.trace(&quot;reading channels&quot;);</span>
+<span class="nc" id="L164">        final long timestamp = System.currentTimeMillis();</span>
+        SmlListEntry[] list;
+        try {
+<span class="nc" id="L167">            list = retrieveSmlListEntries();</span>
+<span class="nc" id="L168">        } catch (IOException e) {</span>
+<span class="nc" id="L169">            logger.error(&quot;read failed&quot;, e);</span>
+<span class="nc" id="L170">            disconnect();</span>
+<span class="nc" id="L171">            throw new ConnectionException(e);</span>
+<span class="nc" id="L172">        }</span>
+
+<span class="nc" id="L174">        addEntriesToContainers(containers, timestamp, list);</span>
+<span class="nc" id="L175">    }</span>
+
+    private static void addEntriesToContainers(List&lt;ChannelRecordContainer&gt; containers, final long timestamp,
+            SmlListEntry[] smlEntries) {
+<span class="nc" id="L179">        Map&lt;String, Value&gt; values = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        for (SmlListEntry entry : smlEntries) {</span>
+<span class="nc" id="L181">            String address = convertBytesToHexString(entry.getObjName().getValue());</span>
+<span class="nc" id="L182">            ValueContainer valueContainer = extractValueOf(entry);</span>
+<span class="nc" id="L183">            values.put(address, valueContainer.value);</span>
+
+<span class="nc" id="L185">            logger.trace(&quot;{} = {}&quot;, address, valueContainer.value);</span>
+        }
+
+<span class="nc" id="L188">        GeneralConnection.handleChannelRecordContainer(containers, values, timestamp);</span>
+<span class="nc" id="L189">    }</span>
+
+    @Override
+    public List&lt;ChannelScanInfo&gt; scanForChannels(int timeout) {
+<span class="nc" id="L193">        List&lt;ChannelScanInfo&gt; channelInfos = new LinkedList&lt;&gt;();</span>
+
+<span class="nc" id="L195">        logger.debug(&quot;scanning channels&quot;);</span>
+        try {
+<span class="nc" id="L197">            SmlListEntry[] list = retrieveSmlListEntries();</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">            for (SmlListEntry entry : list) {</span>
+<span class="nc" id="L199">                ChannelScanInfo channelInfo = convertEntryToScanInfo(entry);</span>
+<span class="nc" id="L200">                channelInfos.add(channelInfo);</span>
+            }
+<span class="nc" id="L202">        } catch (IOException e) {</span>
+<span class="nc" id="L203">            logger.error(&quot;scan for channels failed&quot;, e);</span>
+<span class="nc" id="L204">        }</span>
+<span class="nc" id="L205">        return channelInfos;</span>
+    }
+
+    private static ChannelScanInfo convertEntryToScanInfo(SmlListEntry entry) {
+<span class="nc" id="L209">        String channelAddress = convertBytesToHexString(entry.getObjName().getValue());</span>
+<span class="nc" id="L210">        ValueContainer valueContainer = extractValueOf(entry);</span>
+<span class="nc" id="L211">        Value value = valueContainer.value;</span>
+<span class="nc" id="L212">        String description = MessageFormat.format(&quot;Current value: {0} {1}&quot;, value, entry.getUnit());</span>
+<span class="nc" id="L213">        ValueType valueType = valueContainer.valueType;</span>
+<span class="nc" id="L214">        Integer valueTypeLength = null;</span>
+
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (value != null) {</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (valueType == ValueType.STRING) {</span>
+<span class="nc" id="L218">                String stringValue = value.asString();</span>
+<span class="nc" id="L219">                valueTypeLength = stringValue.length();</span>
+<span class="nc" id="L220">            }</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            else if (valueType == ValueType.BYTE_ARRAY) {</span>
+<span class="nc" id="L222">                byte[] byteValue = value.asByteArray();</span>
+<span class="nc" id="L223">                valueTypeLength = byteValue.length;</span>
+            }
+        }
+
+<span class="nc" id="L227">        boolean readable = true;</span>
+<span class="nc" id="L228">        boolean writable = false;</span>
+<span class="nc" id="L229">        return new ChannelScanInfo(channelAddress, description, valueType, valueTypeLength, readable, writable);</span>
+    }
+
+    @Override
+    public boolean works() {
+        try {
+<span class="nc" id="L235">            retrieveSmlListEntries();</span>
+<span class="nc" id="L236">            return true;</span>
+<span class="nc" id="L237">        } catch (IOException e) {</span>
+<span class="nc" id="L238">            return false;</span>
+        }
+    }
+
+    private synchronized SmlListEntry[] retrieveSmlListEntries() throws IOException {
+<span class="nc" id="L243">        SmlFile smlFile = receiver.getSMLFile();</span>
+
+<span class="nc" id="L245">        List&lt;SmlMessage&gt; messages = smlFile.getMessages();</span>
+
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        for (SmlMessage message : messages) {</span>
+<span class="nc" id="L248">            EMessageBody tag = message.getMessageBody().getTag();</span>
+
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            if (tag != EMessageBody.GET_LIST_RESPONSE) {</span>
+<span class="nc" id="L251">                continue;</span>
+            }
+
+<span class="nc" id="L254">            SmlGetListRes getListResult = (SmlGetListRes) message.getMessageBody().getChoice();</span>
+
+<span class="nc bnc" id="L256" title="All 2 branches missed.">            if (serverId == null) {</span>
+<span class="nc" id="L257">                serverId = convertBytesToHexString(getListResult.getServerId().getValue());</span>
+            }
+
+<span class="nc" id="L260">            return getListResult.getValList().getValListEntry();</span>
+        }
+
+<span class="nc" id="L263">        return null;</span>
+    }
+
+    private static String convertBytesToHexString(byte[] data) {
+<span class="nc" id="L267">        return bytesToHex(data);</span>
+    }
+
+    static final String HEXES = &quot;0123456789ABCDEF&quot;;
+
+    private static String bytesToHex(byte[] raw) {
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        if (raw == null) {</span>
+<span class="nc" id="L274">            return null;</span>
+        }
+<span class="nc" id="L276">        final StringBuilder hex = new StringBuilder(2 * raw.length);</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">        for (final byte b : raw) {</span>
+<span class="nc" id="L278">            hex.append(HEXES.charAt((b &amp; 0xF0) &gt;&gt; 4)).append(HEXES.charAt((b &amp; 0x0F)));</span>
+        }
+<span class="nc" id="L280">        return hex.toString();</span>
+    }
+
+    private static ValueContainer extractValueOf(SmlListEntry entry) {
+<span class="nc" id="L284">        double value = 0;</span>
+<span class="nc" id="L285">        ValueType valueType = ValueType.DOUBLE;</span>
+
+<span class="nc" id="L287">        ASNObject obj = entry.getValue().getChoice();</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">        if (obj.getClass().equals(Integer64.class)) {</span>
+<span class="nc" id="L289">            Integer64 val = (Integer64) obj;</span>
+<span class="nc" id="L290">            value = val.getVal();</span>
+<span class="nc" id="L291">        }</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        else if (obj.getClass().equals(Integer32.class)) {</span>
+<span class="nc" id="L293">            Integer32 val = (Integer32) obj;</span>
+<span class="nc" id="L294">            value = val.getVal();</span>
+<span class="nc" id="L295">        }</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        else if (obj.getClass().equals(Integer16.class)) {</span>
+<span class="nc" id="L297">            Integer16 val = (Integer16) obj;</span>
+<span class="nc" id="L298">            value = val.getVal();</span>
+<span class="nc" id="L299">        }</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">        else if (obj.getClass().equals(Integer8.class)) {</span>
+<span class="nc" id="L301">            Integer8 val = (Integer8) obj;</span>
+<span class="nc" id="L302">            value = val.getVal();</span>
+<span class="nc" id="L303">        }</span>
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        else if (obj.getClass().equals(Unsigned64.class)) {</span>
+<span class="nc" id="L305">            Unsigned64 val = (Unsigned64) obj;</span>
+<span class="nc" id="L306">            value = val.getVal();</span>
+<span class="nc" id="L307">        }</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">        else if (obj.getClass().equals(Unsigned32.class)) {</span>
+<span class="nc" id="L309">            Unsigned32 val = (Unsigned32) obj;</span>
+<span class="nc" id="L310">            value = val.getVal();</span>
+<span class="nc" id="L311">        }</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">        else if (obj.getClass().equals(Unsigned16.class)) {</span>
+<span class="nc" id="L313">            Unsigned16 val = (Unsigned16) obj;</span>
+<span class="nc" id="L314">            value = val.getVal();</span>
+<span class="nc" id="L315">        }</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">        else if (obj.getClass().equals(Unsigned8.class)) {</span>
+<span class="nc" id="L317">            Unsigned8 val = (Unsigned8) obj;</span>
+<span class="nc" id="L318">            value = val.getVal();</span>
+<span class="nc" id="L319">        }</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        else if (obj.getClass().equals(OctetString.class)) {</span>
+<span class="nc" id="L321">            OctetString val = (OctetString) obj;</span>
+<span class="nc" id="L322">            return new ValueContainer(new StringValue(new String(val.getValue())), ValueType.STRING);</span>
+        }
+        else {
+<span class="nc" id="L325">            return new ValueContainer(new DoubleValue(Double.NaN), valueType);</span>
+        }
+
+<span class="nc" id="L328">        byte scaler = entry.getScaler().getVal();</span>
+<span class="nc" id="L329">        double scaledValue = value * Math.pow(10, scaler);</span>
+
+<span class="nc" id="L331">        return new ValueContainer(new DoubleValue(scaledValue), valueType);</span>
+    }
+
+    public static String resolveSymlink(String pathToSerialPortOrSymlink) throws IOException {
+<span class="nc" id="L335">        Path path = new File(pathToSerialPortOrSymlink).toPath();</span>
+<span class="nc bnc" id="L336" title="All 2 branches missed.">        if (Files.isSymbolicLink(path)) {</span>
+<span class="nc" id="L337">            String resolved = path.toRealPath().toString();</span>
+<span class="nc" id="L338">            logger.info(&quot;Resolved symlink {} to {}&quot;, pathToSerialPortOrSymlink, resolved);</span>
+<span class="nc" id="L339">            return resolved;</span>
+        }
+        else {
+<span class="nc" id="L342">            return pathToSerialPortOrSymlink;</span>
+        }
+    }
+
+    private static SerialPort setupSerialPort(String serialPortName) throws IOException {
+<span class="nc" id="L347">        SerialPortBuilder serialPortBuilder = SerialPortBuilder.newBuilder(serialPortName);</span>
+<span class="nc" id="L348">        serialPortBuilder.setBaudRate(9600)</span>
+<span class="nc" id="L349">                .setDataBits(DataBits.DATABITS_8)</span>
+<span class="nc" id="L350">                .setStopBits(StopBits.STOPBITS_1)</span>
+<span class="nc" id="L351">                .setParity(Parity.NONE)</span>
+<span class="nc" id="L352">                .setFlowControl(FlowControl.RTS_CTS);</span>
+
+<span class="nc" id="L354">        return serialPortBuilder.build();</span>
+    }
+
+    private static class ValueContainer {
+        private final Value value;
+        private final ValueType valueType;
+
+<span class="nc" id="L361">        public ValueContainer(Value value, ValueType valueType) {</span>
+<span class="nc" id="L362">            this.value = value;</span>
+<span class="nc" id="L363">            this.valueType = valueType;</span>
+<span class="nc" id="L364">        }</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

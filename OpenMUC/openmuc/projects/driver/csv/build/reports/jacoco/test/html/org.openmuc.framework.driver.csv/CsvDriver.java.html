@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CsvDriver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-csv</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.csv</a> &gt; <span class="el_source">CsvDriver.java</span></div><h1>CsvDriver.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.csv;
+
+import java.io.File;
+import java.util.Arrays;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.config.DriverInfo;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.driver.csv.settings.DeviceScanSettings;
+import org.openmuc.framework.driver.csv.settings.DeviceSettings;
+import org.openmuc.framework.driver.csv.settings.GenericSetting;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.openmuc.framework.driver.spi.DriverService;
+import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Driver to read data from CSV file.
+ * &lt;p&gt;
+ * Three sampling modes are available:
+ * &lt;ul&gt;
+ * &lt;li&gt;LINE: starts from begin of file. With every sampling it reads the next line. Timestamps ignored&lt;/li&gt;
+ * &lt;li&gt;UNIXTIMESTAMP: With every sampling it reads the line with the closest unix timestamp regarding to sampling
+ * timestamp&lt;/li&gt;
+ * &lt;li&gt;HHMMSS: With every sampling it reads the line with the closest time HHMMSS regarding to sampling timestamp&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+@Component
+<span class="fc" id="L54">public class CsvDriver implements DriverService {</span>
+
+<span class="fc" id="L56">    private static final String DEFAULT_DEVICE_SETTINGS = DeviceSettings.Option.SAMPLINGMODE.name() + &quot;=&quot;</span>
+<span class="fc" id="L57">            + ESamplingMode.LINE.toString();</span>
+<span class="fc" id="L58">    private static final Logger logger = LoggerFactory.getLogger(CsvDriver.class);</span>
+<span class="fc" id="L59">    private boolean isDeviceScanInterrupted = false;</span>
+
+    @Override
+    public DriverInfo getInfo() {
+
+<span class="fc" id="L64">        final String ID = &quot;csv&quot;;</span>
+<span class="fc" id="L65">        final String DESCRIPTION = &quot;Driver to read out csv files.&quot;;</span>
+<span class="fc" id="L66">        final String DEVICE_ADDRESS = &quot;csv file path e.g. /home/usr/bin/openmuc/csv/meter.csv&quot;;</span>
+<span class="fc" id="L67">        final String DEVICE_SETTINGS = GenericSetting.syntax(DeviceSettings.class) + &quot;\n samplingmode: &quot;</span>
+<span class="fc" id="L68">                + Arrays.toString(ESamplingMode.values()).toLowerCase()</span>
+<span class="fc" id="L69">                + &quot; Example: samplingmode=line;rewind=true Default: &quot; + DEFAULT_DEVICE_SETTINGS.toLowerCase();</span>
+<span class="fc" id="L70">        final String CHANNEL_ADDRESS = &quot;column header&quot;;</span>
+<span class="fc" id="L71">        final String DEVICE_SCAN_SETTINGS = GenericSetting.syntax(DeviceScanSettings.class)</span>
+                + &quot; path of directory containing csv files e.g: path=/home/usr/openmuc/framework/csv-driver/&quot;;
+
+<span class="fc" id="L74">        return new DriverInfo(ID, DESCRIPTION, DEVICE_ADDRESS, DEVICE_SETTINGS, CHANNEL_ADDRESS, DEVICE_SCAN_SETTINGS);</span>
+
+    }
+
+    @Override
+    public void scanForDevices(String settings, DriverDeviceScanListener listener)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+
+<span class="fc" id="L82">        logger.info(&quot;Scan for CSV files. Settings: {}&quot;, settings);</span>
+
+<span class="fc" id="L84">        resetDeviceScanInterrupted();</span>
+
+<span class="fc" id="L86">        final DeviceScanSettings deviceScanSettings = new DeviceScanSettings(settings);</span>
+<span class="fc" id="L87">        final File[] listOfFiles = deviceScanSettings.path().listFiles();</span>
+
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (listOfFiles != null) {</span>
+
+<span class="fc" id="L91">            final double numberOfFiles = listOfFiles.length;</span>
+<span class="fc" id="L92">            double fileCounter = 0;</span>
+<span class="fc" id="L93">            int idCounter = 0;</span>
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            for (File file : listOfFiles) {</span>
+
+                // check if device scan was interrupted
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                if (isDeviceScanInterrupted) {</span>
+<span class="nc" id="L99">                    break;</span>
+                }
+
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                if (file.isFile()) {</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                    if (file.getName().endsWith(&quot;csv&quot;)) {</span>
+
+<span class="fc" id="L105">                        String deviceId = &quot;csv_device_&quot; + idCounter;</span>
+
+<span class="fc" id="L107">                        listener.deviceFound(new DeviceScanInfo(deviceId, file.getAbsolutePath(),</span>
+<span class="fc" id="L108">                                DEFAULT_DEVICE_SETTINGS.toLowerCase(), file.getName()));</span>
+                    } // else: do nothing, non csv files are ignored
+                } // else: do nothing, folders are ignored
+
+<span class="fc" id="L112">                fileCounter++;</span>
+<span class="fc" id="L113">                listener.scanProgressUpdate((int) (fileCounter / numberOfFiles * 100.0));</span>
+<span class="fc" id="L114">                idCounter++;</span>
+            }
+        }
+<span class="fc" id="L117">    }</span>
+
+    private void resetDeviceScanInterrupted() {
+<span class="fc" id="L120">        isDeviceScanInterrupted = false;</span>
+<span class="fc" id="L121">    }</span>
+
+    @Override
+    public void interruptDeviceScan() throws UnsupportedOperationException {
+<span class="nc" id="L125">        isDeviceScanInterrupted = true;</span>
+<span class="nc" id="L126">    }</span>
+
+    @Override
+    public Connection connect(String deviceAddress, String settings)
+            throws ArgumentSyntaxException, ConnectionException {
+
+<span class="fc" id="L132">        File csvFile = new File(deviceAddress);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (!csvFile.exists()) {</span>
+<span class="fc" id="L134">            throw new ArgumentSyntaxException(&quot;CSV driver - file not found: &quot; + deviceAddress + &quot;, searching file in &quot;</span>
+<span class="fc" id="L135">                    + csvFile.getAbsolutePath());</span>
+        }
+
+<span class="fc" id="L138">        CsvDeviceConnection csvConnection = new CsvDeviceConnection(deviceAddress, settings);</span>
+<span class="fc" id="L139">        logger.info(&quot;Device connected: {}&quot;, deviceAddress);</span>
+<span class="fc" id="L140">        return csvConnection;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MathDriver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-math</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.channelmath</a> &gt; <span class="el_source">MathDriver.java</span></div><h1>MathDriver.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.channelmath;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.config.DriverInfo;
+import org.openmuc.framework.config.ScanException;
+import org.openmuc.framework.config.ScanInterruptedException;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.dataaccess.Channel;
+import org.openmuc.framework.dataaccess.DataAccessService;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ChannelValueContainer;
+import org.openmuc.framework.driver.spi.Connection;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.openmuc.framework.driver.spi.DriverService;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Does simple calculations on channel values.
+ * &lt;p&gt;
+ * This class initiates reading channels.xml parsing, from other channels and the creation of {@link Record}s. This
+ * class is only implementing the interfaces required for OpenMUC. The actual parsing is shifted into
+ * {@link MathEvaluator} and {@link TimestampMergeStrategy}.
+ */
+@Component
+public class MathDriver implements DriverService, Connection, ChannelFinder {
+
+    public final static String DRIVER_ID = &quot;math&quot;;
+    public final static String DRIVER_DESCRIPTION = &quot;Does simple calculations on channel values. Supports addition and subtraction of two channels. Math channels may be stacked &quot;;
+    private final static String noDeviceAddressSyntax = &quot;not needed&quot;;
+    private final static String noDeviceParametersSyntax = &quot;not needed&quot;;
+    private final static String channelAddressSyntax = &quot;$&lt;channelId&gt;$[+-*/]$&lt;channelId&gt;$&quot;;
+    private final static String deviceScanNotSupported = &quot;not supported&quot;;
+<span class="fc" id="L66">    private static final DriverInfo DRIVER_INFO = new DriverInfo(DRIVER_ID, DRIVER_DESCRIPTION, noDeviceAddressSyntax,</span>
+            noDeviceParametersSyntax, channelAddressSyntax, deviceScanNotSupported);
+<span class="fc" id="L68">    private static final Logger logger = LoggerFactory.getLogger(MathDriver.class);</span>
+    private DataAccessService dataAccessService;
+
+<span class="fc" id="L71">    public MathDriver() {</span>
+        // No-argument constructor
+<span class="fc" id="L73">    }</span>
+
+    @Activate
+    protected void activate(ComponentContext context) {
+<span class="nc" id="L77">        logger.info(&quot;Activating {}&quot;, this.getClass().getSimpleName());</span>
+<span class="nc" id="L78">    }</span>
+
+    @Deactivate
+    protected void deactivate(ComponentContext context) {
+<span class="nc" id="L82">        logger.info(&quot;Deactivating {}&quot;, this.getClass().getSimpleName());</span>
+<span class="nc" id="L83">    }</span>
+
+    @Override
+    public DriverInfo getInfo() {
+<span class="fc" id="L87">        return DRIVER_INFO;</span>
+    }
+
+    @Override
+    public Object read(List&lt;ChannelRecordContainer&gt; containers, Object containerListHandle, String samplingGroup)
+            throws UnsupportedOperationException, ConnectionException {
+
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        for (ChannelRecordContainer container : containers) {</span>
+
+<span class="fc" id="L96">            Channel channel = container.getChannel();</span>
+<span class="fc" id="L97">            String containerChannelId = channel.getId();</span>
+            try {
+<span class="fc" id="L99">                logger.debug(&quot;Processing container of channelId '{}'&quot;, containerChannelId);</span>
+
+<span class="fc" id="L101">                Object channelHandle = container.getChannelHandle();</span>
+<span class="nc" id="L102">                MathEvaluator.RecordWithInputChannelCache result = MathEvaluator.evaluate(channel, this, channelHandle);</span>
+<span class="nc" id="L103">                container.setRecord(result.getRecord());</span>
+
+<span class="nc" id="L105">                Set&lt;Channel&gt; maybeUpdatedCache = result.getInputChannelCache();</span>
+<span class="nc" id="L106">                container.setChannelHandle(maybeUpdatedCache);</span>
+<span class="nc" id="L107">                logger.debug(&quot;Updated cache with channels={}&quot;, maybeUpdatedCache);</span>
+
+<span class="nc" id="L109">                logger.debug(&quot;Successfully set value {} for channelId '{}'&quot;,</span>
+                        new Object[] { result, containerChannelId });
+<span class="nc" id="L111">            } catch (MathChannelReadExcpetion e) {</span>
+<span class="nc" id="L112">                logger.warn(&quot;Unable to read from channelId={} with reason {}:{}. Skipping value calculation.&quot;,</span>
+<span class="nc" id="L113">                        new Object[] { containerChannelId, e.getClass().getSimpleName(), e.getMessage() });</span>
+<span class="nc" id="L114">            } catch (MathChannelParseException e) {</span>
+<span class="nc" id="L115">                String message = &quot;Unable to parse formula of channelId='&quot; + containerChannelId + &quot;'&quot;;</span>
+<span class="nc" id="L116">                logger.error(&quot;{}:{}&quot;, message, e.getMessage());</span>
+<span class="nc" id="L117">                throw new UnsupportedOperationException(message, e);</span>
+<span class="fc" id="L118">            } catch (Exception e) {</span>
+<span class="fc" id="L119">                logger.error(&quot;Unable to calculate result for channel='{}'&quot;, containerChannelId, e);</span>
+<span class="fc" id="L120">                throw e;</span>
+<span class="nc" id="L121">            }</span>
+<span class="nc" id="L122">        }</span>
+<span class="nc" id="L123">        return null;</span>
+    }
+
+    @Override
+    public Set&lt;Channel&gt; findChannelsRequiredToEvaluateFormula(String calculationFormulaWithChannelReferences,
+            String channelId) throws MathChannelParseException {
+<span class="fc" id="L129">        Set&lt;Channel&gt; inputChannels = new HashSet&lt;&gt;();</span>
+
+<span class="fc" id="L131">        Set&lt;String&gt; inputChannelIdentifiers = MathEvaluator</span>
+<span class="fc" id="L132">                .getChannelIdentifiers(calculationFormulaWithChannelReferences);</span>
+
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (String inputChannelId : inputChannelIdentifiers) {</span>
+<span class="fc" id="L135">            Channel channel = dataAccessService.getChannel(inputChannelId);</span>
+
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">            if (channel == null) {</span>
+<span class="fc" id="L138">                throw new MathChannelParseException(&quot;Error parsing '&quot; + calculationFormulaWithChannelReferences</span>
+                        + &quot;': Channel '&quot; + inputChannelId + &quot;' not found.&quot;);
+            }
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (MathDriver.DRIVER_ID.equals(channel.getDriverName())) {</span>
+<span class="nc" id="L143">                throw new MathChannelParseException(&quot;Invalid formula for channel '&quot; + channelId</span>
+                        + &quot;': may not depend on other &quot; + MathDriver.DRIVER_ID + &quot; channels.&quot;);
+            }
+<span class="nc" id="L146">            inputChannels.add(channel);</span>
+<span class="nc" id="L147">        }</span>
+<span class="fc" id="L148">        return inputChannels;</span>
+    }
+
+    /**
+     * math driver depends on other channels only. So we do not need to connect to anything.
+     */
+    @Override
+    public Connection connect(String deviceAddress, String settings)
+            throws ArgumentSyntaxException, ConnectionException {
+<span class="fc" id="L157">        return this;</span>
+    }
+
+    /**
+     * Does nothing because we do not need a connection here, see {@link #connect(String, String)}
+     */
+    @Override
+    public void disconnect() {
+        // noop
+<span class="nc" id="L166">    }</span>
+
+    @Reference
+    public void setDataAccessService(DataAccessService dataAccessService) {
+<span class="fc" id="L170">        logger.debug(&quot;Set data access service with {0} channels&quot;, dataAccessService.getAllIds().size());</span>
+<span class="fc" id="L171">        this.dataAccessService = dataAccessService;</span>
+<span class="fc" id="L172">    }</span>
+
+    @Override
+    public void startListening(List&lt;ChannelRecordContainer&gt; containers, RecordsReceivedListener listener)
+            throws UnsupportedOperationException, ConnectionException {
+<span class="nc" id="L177">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public Object write(List&lt;ChannelValueContainer&gt; containers, Object containerListHandle)
+            throws UnsupportedOperationException, ConnectionException {
+<span class="nc" id="L183">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public void scanForDevices(String settings, DriverDeviceScanListener listener)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ScanInterruptedException {
+<span class="nc" id="L189">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public void interruptDeviceScan() throws UnsupportedOperationException {
+<span class="nc" id="L194">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public List&lt;ChannelScanInfo&gt; scanForChannels(String settings)
+            throws UnsupportedOperationException, ArgumentSyntaxException, ScanException, ConnectionException {
+<span class="nc" id="L200">        throw new UnsupportedOperationException();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

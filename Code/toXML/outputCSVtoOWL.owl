@@ -1,0 +1,27 @@
+<rdf:RDF
+    xmlns:ex="http://example.com/owl#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about="http://example.com/owl#Unnamed">
+    <ex:channel_id>c2</ex:channel_id>
+    <ex:device_id>1</ex:device_id>
+    <ex:device_name>Device Two</ex:device_name>
+    <ex:logging_interval>15s</ex:logging_interval>
+    <ex:sampling_interval>15s</ex:sampling_interval>
+    <ex:channel_name>Channel One</ex:channel_name>
+    <ex:device_address>/dev/two</ex:device_address>
+    <ex:channel_id>c3</ex:channel_id>
+    <ex:channel_address>/chan/two</ex:channel_address>
+    <ex:channel_address>/chan/three</ex:channel_address>
+    <ex:channel_name>Channel Three</ex:channel_name>
+    <ex:device_id>2</ex:device_id>
+    <ex:sampling_interval>5s</ex:sampling_interval>
+    <ex:channel_address>/chan/one</ex:channel_address>
+    <ex:unit>kW</ex:unit>
+    <ex:channel_name>Channel Two</ex:channel_name>
+    <ex:device_name>Device One</ex:device_name>
+    <ex:channel_id>c1</ex:channel_id>
+    <ex:device_address>/dev/one</ex:device_address>
+    <ex:logging_interval>5s</ex:logging_interval>
+    <ex:unit>MW</ex:unit>
+  </rdf:Description>
+</rdf:RDF>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.lib.mqtt.MqttSettingsTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2024-12-18T10:42:28" hostname="TEA" time="5.51">
+  <properties/>
+  <testcase name="proxySettingsValidHttpNoUser()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.316"/>
+  <testcase name="proxySettingsValidNoUserHttp()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="4.555"/>
+  <testcase name="proxySettingsInvalidScheme()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.008"/>
+  <testcase name="noProxyAppliedIfNoConfigProvided()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.594"/>
+  <testcase name="throwsOnBadConfig()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.001"/>
+  <testcase name="noProxyConfigured()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.0"/>
+  <testcase name="exampleProxiesWork()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.001"/>
+  <testcase name="proxySettingsValidSocks4()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.002"/>
+  <testcase name="proxySettingsValidSocks5()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.001"/>
+  <testcase name="proxySettingsValidWithUser()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.001"/>
+  <testcase name="validSettingsAreProperlyForwarded()" classname="org.openmuc.framework.lib.mqtt.MqttSettingsTest" time="0.022"/>
+  <system-out><![CDATA[11:42:28.320 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+11:42:28.322 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='localhost', port=123, user=<none>, hasPassword=false}
+11:42:28.348 [Test worker] DEBUG io.netty.util.internal.logging.InternalLoggerFactory - Using SLF4J as the default logging framework
+11:42:28.348 [Test worker] DEBUG io.netty.util.NetUtil - -Djava.net.preferIPv4Stack: false
+11:42:28.348 [Test worker] DEBUG io.netty.util.NetUtil - -Djava.net.preferIPv6Addresses: false
+11:42:28.550 [Test worker] DEBUG io.netty.util.NetUtilInitializations - Loopback interface: lo (Software Loopback Interface 1, 127.0.0.1)
+11:42:28.586 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false
+11:42:28.587 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - Java version: 11
+11:42:28.588 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.theUnsafe: available
+11:42:28.590 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.copyMemory: available
+11:42:28.591 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - sun.misc.Unsafe.storeFence: available
+11:42:28.592 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.Buffer.address: available
+11:42:28.593 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
+11:42:28.594 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.Bits.unaligned: available, true
+11:42:28.595 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @59f99ea
+11:42:28.600 [Test worker] DEBUG io.netty.util.internal.PlatformDependent0 - java.nio.DirectByteBuffer.<init>(long, {int,long}): unavailable
+11:42:28.600 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - sun.misc.Unsafe: available
+11:42:28.627 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - maxDirectMemory: 536870912 bytes (maybe)
+11:42:28.627 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.tmpdir: C:\Users\tdmar\AppData\Local\Temp (java.io.tmpdir)
+11:42:28.628 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.bitMode: 64 (sun.arch.data.model)
+11:42:28.628 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - Platform: Windows
+11:42:28.629 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.maxDirectMemory: -1 bytes
+11:42:28.629 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.uninitializedArrayAllocationThreshold: -1
+11:42:28.631 [Test worker] DEBUG io.netty.util.internal.CleanerJava9 - java.nio.ByteBuffer.cleaner(): available
+11:42:28.632 [Test worker] DEBUG io.netty.util.internal.PlatformDependent - -Dio.netty.noPreferDirect: false
+11:42:28.634 [Test worker] DEBUG io.netty.util.NetUtil - Failed to get SOMAXCONN from sysctl and file \proc\sys\net\core\somaxconn. Default: 200
+11:42:28.636 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='1.2.3.4', port=5678, user=<none>, hasPassword=false}
+11:42:33.794 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy set
+11:42:33.797 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks4, hostname='host', port=123, user=<none>, hasPassword=false}
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks5, hostname='host', port=123, user=<none>, hasPassword=false}
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='host', port=123, user=<none>, hasPassword=false}
+11:42:33.800 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='host', port=123, user=user, hasPassword=true}
+11:42:33.802 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks4, hostname='154.12.253.232', port=40616, user=<none>, hasPassword=false}
+11:42:33.804 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=socks5, hostname='64.187.232.70', port=2277, user=<none>, hasPassword=false}
+11:42:33.805 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - No proxy schema set. Assuming 'http://'
+11:42:33.805 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='localhost', port=123, user=me, hasPassword=true}
+11:42:33.807 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Parsed ProxySettings{protocol=http, hostname='utini', port=42, user=foo, hasPassword=true}
+11:42:33.820 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttSettings - Applied proxy settings
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

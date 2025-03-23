@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KnxIpDiscover.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-knx</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.knx</a> &gt; <span class="el_source">KnxIpDiscover.java</span></div><h1>KnxIpDiscover.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.knx;
+
+import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+
+import org.openmuc.framework.config.DeviceScanInfo;
+import org.openmuc.framework.driver.spi.DriverDeviceScanListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tuwien.auto.calimero.knxnetip.Discoverer;
+import tuwien.auto.calimero.knxnetip.servicetype.SearchResponse;
+import tuwien.auto.calimero.knxnetip.util.DeviceDIB;
+
+public class KnxIpDiscover {
+
+<span class="nc" id="L38">    private static Logger logger = LoggerFactory.getLogger(KnxIpDiscover.class);</span>
+<span class="nc" id="L39">    private static int DEFALUT_TIMEOUT = 5;</span>
+
+    private Discoverer discoverer;
+    private SearchResponse[] searchResponses;
+
+<span class="nc" id="L44">    public KnxIpDiscover(String interfaceAddress, boolean natAware, boolean mcastResponse) throws IOException {</span>
+        try {
+<span class="nc" id="L46">            InetAddress localHost = InetAddress.getByName(interfaceAddress);</span>
+<span class="nc" id="L47">            discoverer = new Discoverer(localHost, 0, natAware, mcastResponse);</span>
+<span class="nc" id="L48">        } catch (Exception e) {</span>
+<span class="nc" id="L49">            logger.warn(&quot;can not create discoverer: &quot; + e.getMessage());</span>
+<span class="nc" id="L50">            throw new IOException(e);</span>
+<span class="nc" id="L51">        }</span>
+<span class="nc" id="L52">    }</span>
+
+    public void startSearch(int timeout, DriverDeviceScanListener listener) throws IOException {
+<span class="nc" id="L55">        timeout = timeout / 1000;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (timeout &lt; 1) {</span>
+<span class="nc" id="L57">            timeout = DEFALUT_TIMEOUT;</span>
+        }
+        try {
+<span class="nc" id="L60">            logger.debug(&quot;Starting search (timeout: &quot; + timeout + &quot;s)&quot;);</span>
+<span class="nc" id="L61">            discoverer.startSearch(timeout, true);</span>
+<span class="nc" id="L62">            searchResponses = discoverer.getSearchResponses();</span>
+<span class="nc" id="L63">        } catch (Exception e) {</span>
+<span class="nc" id="L64">            logger.warn(&quot;A network I/O error occurred&quot;);</span>
+<span class="nc" id="L65">            throw new IOException(e);</span>
+<span class="nc" id="L66">        }</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (searchResponses != null) {</span>
+<span class="nc" id="L68">            notifyListener(listener);</span>
+        }
+<span class="nc" id="L70">    }</span>
+
+    private void notifyListener(DriverDeviceScanListener listener) {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (SearchResponse response : searchResponses) {</span>
+
+<span class="nc" id="L75">            StringBuilder deviceAddress = new StringBuilder();</span>
+<span class="nc" id="L76">            deviceAddress.append(KnxDriver.ADDRESS_SCHEME_KNXIP).append(&quot;://&quot;);</span>
+
+<span class="nc" id="L78">            InetAddress address = response.getControlEndpoint().getAddress();</span>
+<span class="nc" id="L79">            String ipAddress = address.getHostAddress();</span>
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (address instanceof Inet6Address) {</span>
+<span class="nc" id="L82">                deviceAddress.append(&quot;[&quot;).append(ipAddress).append(&quot;]&quot;);</span>
+            }
+            else {
+<span class="nc" id="L85">                deviceAddress.append(ipAddress);</span>
+            }
+<span class="nc" id="L87">            deviceAddress.append(&quot;:&quot;).append(response.getControlEndpoint().getPort());</span>
+
+<span class="nc" id="L89">            DeviceDIB deviceDIB = response.getDevice();</span>
+<span class="nc" id="L90">            String name = deviceDIB.getSerialNumberString();</span>
+<span class="nc" id="L91">            String description = deviceDIB.toString();</span>
+
+<span class="nc" id="L93">            logger.debug(&quot;Found &quot; + deviceAddress + &quot; - &quot; + name + &quot; - &quot; + description);</span>
+
+<span class="nc" id="L95">            listener.deviceFound(new DeviceScanInfo(deviceAddress.toString(), &quot;&quot;, description));</span>
+        }
+
+<span class="nc" id="L98">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devicesAndChannels>
+  <devicesAndChannels>
+    <channel_name>Channel One</channel_name>
+    <device_name>Device One</device_name>
+    <unit>kW</unit>
+    <device_id>1</device_id>
+    <logging_interval>5s</logging_interval>
+    <device_address>/dev/one</device_address>
+    <channel_address>/chan/one</channel_address>
+    <channel_id>c1</channel_id>
+    <sampling_interval>5s</sampling_interval>
+  </devicesAndChannels>
+  <devicesAndChannels>
+    <channel_name>Channel Two</channel_name>
+    <device_name>Device One</device_name>
+    <unit>kW</unit>
+    <device_id>1</device_id>
+    <logging_interval>5s</logging_interval>
+    <device_address>/dev/one</device_address>
+    <channel_address>/chan/two</channel_address>
+    <channel_id>c2</channel_id>
+    <sampling_interval>5s</sampling_interval>
+  </devicesAndChannels>
+  <devicesAndChannels>
+    <channel_name>Channel Three</channel_name>
+    <device_name>Device Two</device_name>
+    <unit>MW</unit>
+    <device_id>2</device_id>
+    <logging_interval>15s</logging_interval>
+    <device_address>/dev/two</device_address>
+    <channel_address>/chan/three</channel_address>
+    <channel_id>c3</channel_id>
+    <sampling_interval>15s</sampling_interval>
+  </devicesAndChannels>
+</devicesAndChannels>

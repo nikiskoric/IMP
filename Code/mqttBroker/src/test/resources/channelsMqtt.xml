@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+
+<driver id='mqtt'>
+
+	<device id='local-mosquitto'>
+	    <deviceAddress>localhost</deviceAddress>
+        <settings>port=1883;
+            retainedMessages=true;
+            parser=simple
+        </settings>
+        <channel id="weather-data">
+            <channelAddress>weather/temperature</channelAddress>
+            <valueType length="1">DOUBLE</valueType>
+        </channel>
+	</device>
+	
+</driver>
+
+</configuration>

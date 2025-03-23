@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.data.ValueTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:42:31" hostname="TEA" time="0.024">
+  <properties/>
+  <testcase name="booleanValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.001"/>
+  <testcase name="byteValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.001"/>
+  <testcase name="stringValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.001"/>
+  <testcase name="longValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.001"/>
+  <testcase name="floatValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.004"/>
+  <testcase name="byteArrayValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.001"/>
+  <testcase name="shortValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.001"/>
+  <testcase name="doubleValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.002"/>
+  <testcase name="intValueEqualsHashCodeTest()" classname="org.openmuc.framework.data.ValueTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

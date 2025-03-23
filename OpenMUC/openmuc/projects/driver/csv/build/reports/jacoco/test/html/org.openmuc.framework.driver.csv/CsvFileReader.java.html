@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CsvFileReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-csv</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.csv</a> &gt; <span class="el_source">CsvFileReader.java</span></div><h1>CsvFileReader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.csv;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.openmuc.framework.driver.spi.ConnectionException;
+
+import com.univocity.parsers.common.processor.ColumnProcessor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+
+/**
+ * Class to parse the CSV file into a map of column names and their respective list of values
+ */
+<span class="nc" id="L38">public class CsvFileReader {</span>
+
+    HashMap&lt;String, List&lt;Double&gt;&gt; data;
+
+    public static Map&lt;String, List&lt;String&gt;&gt; readCsvFile(String fileName) throws ConnectionException {
+
+        // https://github.com/uniVocity/univocity-parsers#reading-columns-instead-of-rows
+
+<span class="fc" id="L46">        ColumnProcessor processor = new ColumnProcessor();</span>
+<span class="fc" id="L47">        CsvParserSettings parserSettings = new CsvParserSettings();</span>
+<span class="fc" id="L48">        parserSettings.getFormat().setLineSeparator(&quot;\n&quot;);</span>
+<span class="fc" id="L49">        parserSettings.setHeaderExtractionEnabled(true);</span>
+<span class="fc" id="L50">        parserSettings.setProcessor(processor);</span>
+
+<span class="fc" id="L52">        CsvParser parser = new CsvParser(parserSettings);</span>
+        FileReader reader;
+
+        try {
+<span class="fc" id="L56">            reader = new FileReader(fileName);</span>
+<span class="fc" id="L57">            parser.parse(reader);</span>
+<span class="fc" id="L58">            reader.close();</span>
+<span class="nc" id="L59">        } catch (IOException e) {</span>
+<span class="nc" id="L60">            throw new ConnectionException(&quot;Unable to parse file.&quot;, e);</span>
+<span class="fc" id="L61">        }</span>
+
+        // Finally, we can get the column values:
+<span class="fc" id="L64">        Map&lt;String, List&lt;String&gt;&gt; columnValues = processor.getColumnValuesAsMapOfNames();</span>
+
+<span class="fc" id="L66">        return columnValues;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

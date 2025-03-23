@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MqttReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-lib-mqtt</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.lib.mqtt</a> &gt; <span class="el_source">MqttReader.java</span></div><h1>MqttReader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.lib.mqtt;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscribe;
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3SubscribeBuilder;
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscription;
+
+public class MqttReader {
+<span class="nc" id="L36">    private static final Logger logger = LoggerFactory.getLogger(MqttReader.class);</span>
+    private final MqttConnection connection;
+<span class="nc" id="L38">    private boolean connected = false;</span>
+<span class="nc" id="L39">    private final List&lt;SubscribeListenerTuple&gt; subscribes = new LinkedList&lt;&gt;();</span>
+    private final String pid;
+
+    /**
+     * Note that the connect method of the connection should be called after the Writer got instantiated.
+     *
+     * @param connection
+     *            the {@link MqttConnection} this Writer should use
+     * @param pid
+     *            an id which is preceding every log call
+     */
+<span class="nc" id="L50">    public MqttReader(MqttConnection connection, String pid) {</span>
+<span class="nc" id="L51">        this.connection = connection;</span>
+<span class="nc" id="L52">        this.pid = pid;</span>
+<span class="nc" id="L53">        addConnectedListener(connection);</span>
+<span class="nc" id="L54">        addDisconnectedListener(connection);</span>
+<span class="nc" id="L55">    }</span>
+
+    private void addDisconnectedListener(MqttConnection connection) {
+<span class="nc" id="L58">        connection.addDisconnectedListener(context -&gt; {</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (context.getReconnector().isReconnect()) {</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                if (connected) {</span>
+<span class="nc" id="L61">                    warn(&quot;Disconnected! {}&quot;, context.getCause().getMessage());</span>
+                }
+                else {
+<span class="nc" id="L64">                    warn(&quot;Reconnect failed! Reason: {}&quot;, context.getCause().getMessage());</span>
+                }
+<span class="nc" id="L66">                connected = false;</span>
+            }
+<span class="nc" id="L68">        });</span>
+<span class="nc" id="L69">    }</span>
+
+    private void addConnectedListener(MqttConnection connection) {
+<span class="nc" id="L72">        connection.addConnectedListener(context -&gt; {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            for (SubscribeListenerTuple tuple : subscribes) {</span>
+<span class="nc" id="L74">                subscribe(tuple.subscribe, tuple.listener);</span>
+<span class="nc" id="L75">            }</span>
+<span class="nc" id="L76">            connected = true;</span>
+<span class="nc" id="L77">            log(&quot;Connected to {}:{}&quot;, context.getClientConfig().getServerHost(),</span>
+<span class="nc" id="L78">                    context.getClientConfig().getServerPort());</span>
+<span class="nc" id="L79">        });</span>
+<span class="nc" id="L80">    }</span>
+
+    /**
+     * Listens on all topics and notifies the listener when a new message on one of the topics comes in
+     *
+     * @param topics
+     *            List with topic string to listen on
+     * @param listener
+     *            listener which gets notified of new messages coming in
+     */
+    public void listen(List&lt;String&gt; topics, MqttMessageListener listener) {
+<span class="nc" id="L91">        Mqtt3Subscribe subscribe = buildSubscribe(topics);</span>
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (subscribe == null) {</span>
+<span class="nc" id="L94">            error(&quot;No topic given to listen on&quot;);</span>
+<span class="nc" id="L95">            return;</span>
+        }
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (connected) {</span>
+<span class="nc" id="L99">            subscribe(subscribe, listener);</span>
+        }
+<span class="nc" id="L101">        subscribes.add(new SubscribeListenerTuple(subscribe, listener));</span>
+<span class="nc" id="L102">    }</span>
+
+    private void subscribe(Mqtt3Subscribe subscribe, MqttMessageListener listener) {
+<span class="nc" id="L105">        this.connection.getClient().subscribe(subscribe, mqtt3Publish -&gt; {</span>
+<span class="nc" id="L106">            listener.newMessage(mqtt3Publish.getTopic().toString(), mqtt3Publish.getPayloadAsBytes());</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L108">                trace(&quot;Message on topic {} received, payload: {}&quot;, mqtt3Publish.getTopic().toString(),</span>
+<span class="nc" id="L109">                        new String(mqtt3Publish.getPayloadAsBytes()));</span>
+            }
+<span class="nc" id="L111">        });</span>
+<span class="nc" id="L112">    }</span>
+
+    private Mqtt3Subscribe buildSubscribe(List&lt;String&gt; topics) {
+<span class="nc" id="L115">        Mqtt3SubscribeBuilder subscribeBuilder = Mqtt3Subscribe.builder();</span>
+<span class="nc" id="L116">        Mqtt3Subscribe subscribe = null;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        for (String topic : topics) {</span>
+<span class="nc" id="L118">            Mqtt3Subscription subscription = Mqtt3Subscription.builder().topicFilter(topic).build();</span>
+            // last topic, build the subscribe object
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (topics.get(topics.size() - 1).equals(topic)) {</span>
+<span class="nc" id="L121">                subscribe = subscribeBuilder.addSubscription(subscription).build();</span>
+<span class="nc" id="L122">                break;</span>
+            }
+<span class="nc" id="L124">            subscribeBuilder.addSubscription(subscription);</span>
+<span class="nc" id="L125">        }</span>
+<span class="nc" id="L126">        return subscribe;</span>
+    }
+
+    private static class SubscribeListenerTuple {
+        private final Mqtt3Subscribe subscribe;
+        private final MqttMessageListener listener;
+
+<span class="nc" id="L133">        private SubscribeListenerTuple(Mqtt3Subscribe subscribe, MqttMessageListener listener) {</span>
+<span class="nc" id="L134">            this.subscribe = subscribe;</span>
+<span class="nc" id="L135">            this.listener = listener;</span>
+<span class="nc" id="L136">        }</span>
+    }
+
+    private void log(String message, Object... args) {
+<span class="nc" id="L140">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L141">        logger.info(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L142">    }</span>
+
+    private void debug(String message, Object... args) {
+<span class="nc" id="L145">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L146">        logger.debug(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L147">    }</span>
+
+    private void warn(String message, Object... args) {
+<span class="nc" id="L150">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L151">        logger.warn(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L152">    }</span>
+
+    private void error(String message, Object... args) {
+<span class="nc" id="L155">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L156">        logger.error(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L157">    }</span>
+
+    private void trace(String message, Object... args) {
+<span class="nc" id="L160">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L161">        logger.trace(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L162">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

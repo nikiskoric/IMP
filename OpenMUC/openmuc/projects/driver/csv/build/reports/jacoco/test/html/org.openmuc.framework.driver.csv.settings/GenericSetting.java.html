@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GenericSetting.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-csv</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.csv.settings</a> &gt; <span class="el_source">GenericSetting.java</span></div><h1>GenericSetting.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.csv.settings;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.MessageFormat;
+import java.util.Locale;
+
+import org.openmuc.framework.config.ArgumentSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+<span class="fc" id="L34">public abstract class GenericSetting {</span>
+
+    private static final String SEPARATOR = &quot;;&quot;;
+    private static final String PAIR_SEP = &quot;=&quot;;
+    private static final String PREFIX = &quot;prefix&quot;;
+    private static final String TYPE = &quot;type&quot;;
+    private static final String MANDATORY = &quot;mandatory&quot;;
+<span class="fc" id="L41">    private static final Locale LOCALE = Locale.ENGLISH;</span>
+
+<span class="fc" id="L43">    private static final Logger logger = LoggerFactory.getLogger(GenericSetting.class);</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public static String syntax(Class&lt;? extends GenericSetting&gt; genericSettings) {
+<span class="fc" id="L47">        Class&lt;Enum&lt;? extends OptionI&gt;&gt; options = (Class&lt;Enum&lt;? extends OptionI&gt;&gt;) genericSettings</span>
+<span class="fc" id="L48">                .getDeclaredClasses()[0];</span>
+
+<span class="fc" id="L50">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L51">        StringBuilder sbNotMandetory = new StringBuilder();</span>
+
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (options == null) {</span>
+<span class="nc" id="L54">            String errorMessage = &quot;Driver implementation error, in method syntax(). Could not find class &quot;</span>
+<span class="nc" id="L55">                    + genericSettings.getSimpleName() + &quot;. Report driver developer.&quot;;</span>
+<span class="nc" id="L56">            logger.error(errorMessage);</span>
+<span class="nc" id="L57">            sb.append(errorMessage);</span>
+<span class="nc" id="L58">        }</span>
+        else {
+<span class="fc" id="L60">            sb.append(&quot;Synopsis:&quot;);</span>
+<span class="fc" id="L61">            boolean first = true;</span>
+            try {
+<span class="fc" id="L63">                Method valueMethod = options.getMethod(PREFIX);</span>
+<span class="fc" id="L64">                Method mandatorylMethod = options.getMethod(MANDATORY);</span>
+
+<span class="fc bfc" id="L66" title="All 2 branches covered.">                for (Enum&lt;? extends OptionI&gt; option : options.getEnumConstants()) {</span>
+<span class="fc" id="L67">                    boolean mandatory = (boolean) mandatorylMethod.invoke(option);</span>
+<span class="fc" id="L68">                    String value = (String) valueMethod.invoke(option);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">                    if (mandatory) {</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">                        if (!first) {</span>
+<span class="nc" id="L71">                            sb.append(SEPARATOR);</span>
+                        }
+<span class="fc" id="L73">                        first = false;</span>
+<span class="fc" id="L74">                        sb.append(' ' + value + PAIR_SEP + &quot; &lt;&quot; + option.name().toLowerCase(LOCALE) + '&gt;');</span>
+                    }
+                    else {
+<span class="fc" id="L77">                        sbNotMandetory.append(</span>
+<span class="fc" id="L78">                                &quot; [&quot; + SEPARATOR + value + PAIR_SEP + &quot; &lt;&quot; + option.name().toLowerCase(LOCALE) + &quot;&gt;]&quot;);</span>
+                    }
+                }
+<span class="fc" id="L81">                sb.append(sbNotMandetory);</span>
+<span class="nc" id="L82">            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException</span>
+                    | NoSuchMethodException | SecurityException e) {
+<span class="nc" id="L84">                String errorMessage = &quot;Driver implementation error, in method syntax(). Could not find method. Report driver developer.&quot;;</span>
+<span class="nc" id="L85">                logger.error(errorMessage);</span>
+<span class="nc" id="L86">                sb.append(errorMessage);</span>
+<span class="fc" id="L87">            }</span>
+        }
+<span class="fc" id="L89">        return sb.toString();</span>
+    }
+
+    public interface OptionI {
+
+        String prefix();
+
+        Class&lt;?&gt; type();
+
+        boolean mandatory();
+    }
+
+    /**
+     * Example Option Enum
+     */
+<span class="nc" id="L104">    @SuppressWarnings(&quot;unused&quot;)</span>
+    private static enum Option implements OptionI {
+<span class="nc" id="L106">        EXAMPLE0(&quot;ex0&quot;, Integer.class, false),</span>
+<span class="nc" id="L107">        EXAMPLE1(&quot;ex1&quot;, String.class, true);</span>
+
+        private final String prefix;
+        private final Class&lt;?&gt; type;
+        private final boolean mandatory;
+
+<span class="nc" id="L113">        private Option(String prefix, Class&lt;?&gt; type, boolean mandatory) {</span>
+<span class="nc" id="L114">            this.prefix = prefix;</span>
+<span class="nc" id="L115">            this.type = type;</span>
+<span class="nc" id="L116">            this.mandatory = mandatory;</span>
+<span class="nc" id="L117">        }</span>
+
+        @Override
+        public String prefix() {
+<span class="nc" id="L121">            return this.prefix;</span>
+        }
+
+        @Override
+        public Class&lt;?&gt; type() {
+<span class="nc" id="L126">            return this.type;</span>
+        }
+
+        @Override
+        public boolean mandatory() {
+<span class="nc" id="L131">            return this.mandatory;</span>
+        }
+    }
+
+    synchronized int parseFields(String settings, Class&lt;? extends Enum&lt;? extends OptionI&gt;&gt; options)
+            throws ArgumentSyntaxException {
+<span class="fc" id="L137">        String enclosingClassName = options.getEnclosingClass().getSimpleName();</span>
+<span class="fc" id="L138">        int enumValuesLength = options.getEnumConstants().length;</span>
+
+        Method prefixMethod;
+        Method typeMethod;
+        Method mandatorylMethod;
+
+<span class="fc" id="L144">        String[] settingsArray = settings.trim().split(SEPARATOR);</span>
+<span class="fc" id="L145">        int settingsArrayLength = settingsArray.length;</span>
+
+<span class="pc bpc" id="L147" title="2 of 4 branches missed.">        if (settingsArrayLength &gt;= 1 &amp;&amp; settingsArrayLength &lt;= enumValuesLength) {</span>
+            try {
+<span class="fc" id="L149">                prefixMethod = options.getMethod(PREFIX);</span>
+<span class="fc" id="L150">                typeMethod = options.getMethod(TYPE);</span>
+<span class="fc" id="L151">                mandatorylMethod = options.getMethod(MANDATORY);</span>
+<span class="nc" id="L152">            } catch (NoSuchMethodException | SecurityException e) {</span>
+<span class="nc" id="L153">                throw new ArgumentSyntaxException(&quot;Driver implementation error, \'&quot; + enclosingClassName</span>
+                        + &quot;\' problem to find method in implementation. Report driver developer.\n&quot; + e);
+<span class="fc" id="L155">            }</span>
+
+            try {
+<span class="fc bfc" id="L158" title="All 2 branches covered.">                for (Enum&lt;? extends OptionI&gt; option : options.getEnumConstants()) {</span>
+<span class="fc" id="L159">                    String prefix = (String) prefixMethod.invoke(option);</span>
+<span class="fc" id="L160">                    Class&lt;?&gt; type = (Class&lt;?&gt;) typeMethod.invoke(option);</span>
+<span class="fc" id="L161">                    boolean mandatory = (boolean) mandatorylMethod.invoke(option);</span>
+<span class="fc" id="L162">                    boolean noOptionsPresent = true;</span>
+<span class="fc" id="L163">                    String setting = &quot;&quot;;</span>
+
+<span class="fc bfc" id="L165" title="All 2 branches covered.">                    for (String singlesetting : settingsArray) {</span>
+<span class="fc" id="L166">                        setting = singlesetting.trim();</span>
+<span class="fc" id="L167">                        String[] pair = setting.split(PAIR_SEP);</span>
+<span class="fc" id="L168">                        int pairLength = pair.length;</span>
+
+<span class="fc bfc" id="L170" title="All 4 branches covered.">                        if (mandatory &amp;&amp; pairLength != 2) {</span>
+<span class="fc" id="L171">                            throw new ArgumentSyntaxException(&quot;Parameter in &quot; + enclosingClassName</span>
+                                    + &quot; is not a pair of prefix and value: &lt;prefix&gt;&quot; + PAIR_SEP + &quot;&lt;value&gt; &quot;);
+                        }
+<span class="pc bpc" id="L174" title="1 of 4 branches missed.">                        if (pairLength == 2 &amp;&amp; pair[0].trim().equalsIgnoreCase(prefix)) {</span>
+                            try {
+<span class="fc" id="L176">                                noOptionsPresent = false;</span>
+<span class="fc" id="L177">                                setField(pair[1], option.name(), type, options);</span>
+<span class="nc" id="L178">                            } catch (NoSuchFieldException | IllegalAccessException e) {</span>
+<span class="nc" id="L179">                                throw new ArgumentSyntaxException(&quot;Driver implementation error, \'&quot; + enclosingClassName</span>
+                                        + &quot;\' has no corresponding field for parameter &quot; + setting
+                                        + &quot;. Report driver developer.\n&quot; + e);
+<span class="fc" id="L182">                            }</span>
+                        }
+                    }
+<span class="pc bpc" id="L185" title="1 of 4 branches missed.">                    if (noOptionsPresent &amp;&amp; mandatory) {</span>
+<span class="nc" id="L186">                        throw new ArgumentSyntaxException(&quot;Mandatory parameter &quot; + option.name() + &quot; is not present in &quot;</span>
+<span class="nc" id="L187">                                + this.getClass().getSimpleName());</span>
+                    }
+                }
+<span class="nc" id="L190">            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {</span>
+<span class="nc" id="L191">                throw new ArgumentSyntaxException(</span>
+<span class="nc" id="L192">                        &quot;Driver implementation error, \'&quot; + options.getName().toLowerCase(LOCALE)</span>
+                                + &quot;\' problem to invoke method. Report driver developer.\n&quot; + e);
+<span class="fc" id="L194">            }</span>
+
+        }
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        else if (settingsArrayLength &gt; enumValuesLength) {</span>
+<span class="nc" id="L198">            throw new ArgumentSyntaxException(&quot;Too much parameters in &quot; + enclosingClassName + &quot;.&quot;);</span>
+        }
+<span class="fc" id="L200">        return settingsArrayLength;</span>
+    }
+
+    private synchronized void setField(String value, String enumName, Class&lt;?&gt; type,
+            Class&lt;? extends Enum&lt;? extends OptionI&gt;&gt; options)
+            throws IllegalAccessException, NoSuchFieldException, ArgumentSyntaxException {
+<span class="fc" id="L206">        String optionName = enumName.toLowerCase(LOCALE);</span>
+<span class="fc" id="L207">        value = value.trim();</span>
+
+<span class="pc bpc" id="L209" title="8 of 9 branches missed.">        switch (type.getSimpleName()) {</span>
+        case &quot;Boolean&quot;:
+<span class="nc" id="L211">            options.getDeclaringClass().getDeclaredField(optionName).setBoolean(this, extractBoolean(value, enumName));</span>
+<span class="nc" id="L212">            break;</span>
+        case &quot;Short&quot;:
+<span class="nc" id="L214">            options.getDeclaringClass().getDeclaredField(optionName).setShort(this, extractShort(value, enumName));</span>
+<span class="nc" id="L215">            break;</span>
+        case &quot;Integer&quot;:
+<span class="nc" id="L217">            options.getDeclaringClass().getDeclaredField(optionName).setInt(this, extractInteger(value, enumName));</span>
+<span class="nc" id="L218">            break;</span>
+        case &quot;Long&quot;:
+<span class="nc" id="L220">            options.getDeclaringClass().getDeclaredField(optionName).setLong(this, extractLong(value, enumName));</span>
+<span class="nc" id="L221">            break;</span>
+        case &quot;Float&quot;:
+<span class="nc" id="L223">            options.getDeclaringClass().getDeclaredField(optionName).setFloat(this, extractFloat(value, enumName));</span>
+<span class="nc" id="L224">            break;</span>
+        case &quot;Double&quot;:
+<span class="nc" id="L226">            options.getDeclaringClass().getDeclaredField(optionName).setDouble(this, extractDouble(value, enumName));</span>
+<span class="nc" id="L227">            break;</span>
+        case &quot;String&quot;:
+<span class="fc" id="L229">            options.getDeclaringClass().getDeclaredField(optionName).set(this, value);</span>
+<span class="fc" id="L230">            break;</span>
+        case &quot;InetAddress&quot;:
+<span class="nc" id="L232">            options.getDeclaringClass().getDeclaredField(optionName).set(this, extractInetAddress(value, enumName));</span>
+<span class="nc" id="L233">            break;</span>
+        default:
+<span class="nc" id="L235">            throw new NoSuchFieldException(&quot;Driver implementation error, \'&quot; + enumName.toLowerCase(LOCALE)</span>
+                    + &quot;\' not supported data type. Report driver developer\n&quot;);
+        }
+<span class="fc" id="L238">    }</span>
+
+    private synchronized boolean extractBoolean(String value, String errorMessage) throws ArgumentSyntaxException {
+<span class="nc" id="L241">        Boolean ret = false;</span>
+        try {
+<span class="nc" id="L243">            ret = Boolean.getBoolean(value);</span>
+<span class="nc" id="L244">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L245">            argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());</span>
+<span class="nc" id="L246">        }</span>
+<span class="nc" id="L247">        return ret;</span>
+    }
+
+    private synchronized short extractShort(String value, String errorMessage) throws ArgumentSyntaxException {
+<span class="nc" id="L251">        Short ret = 0;</span>
+        try {
+<span class="nc" id="L253">            ret = Short.decode(value);</span>
+<span class="nc" id="L254">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L255">            argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());</span>
+<span class="nc" id="L256">        }</span>
+<span class="nc" id="L257">        return ret;</span>
+    }
+
+    private synchronized int extractInteger(String value, String errorMessage) throws ArgumentSyntaxException {
+<span class="nc" id="L261">        Integer ret = 0;</span>
+        try {
+<span class="nc" id="L263">            ret = Integer.decode(value);</span>
+<span class="nc" id="L264">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L265">            argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());</span>
+<span class="nc" id="L266">        }</span>
+<span class="nc" id="L267">        return ret;</span>
+    }
+
+    private synchronized long extractLong(String value, String errorMessage) throws ArgumentSyntaxException {
+<span class="nc" id="L271">        Long ret = 0l;</span>
+        try {
+<span class="nc" id="L273">            ret = Long.decode(value);</span>
+<span class="nc" id="L274">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L275">            argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());</span>
+<span class="nc" id="L276">        }</span>
+<span class="nc" id="L277">        return ret;</span>
+    }
+
+    private synchronized float extractFloat(String value, String errorMessage) throws ArgumentSyntaxException {
+<span class="nc" id="L281">        Float ret = 0f;</span>
+        try {
+<span class="nc" id="L283">            ret = Float.parseFloat(value);</span>
+<span class="nc" id="L284">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L285">            argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());</span>
+<span class="nc" id="L286">        }</span>
+<span class="nc" id="L287">        return ret;</span>
+    }
+
+    private synchronized double extractDouble(String value, String errorMessage) throws ArgumentSyntaxException {
+<span class="nc" id="L291">        Double ret = 0.;</span>
+        try {
+<span class="nc" id="L293">            ret = Double.parseDouble(value);</span>
+<span class="nc" id="L294">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L295">            argumentSyntaxException(errorMessage, ret.getClass().getSimpleName());</span>
+<span class="nc" id="L296">        }</span>
+<span class="nc" id="L297">        return ret;</span>
+    }
+
+    private synchronized InetAddress extractInetAddress(String value, String errorMessage)
+            throws ArgumentSyntaxException {
+<span class="nc" id="L302">        InetAddress ret = null;</span>
+        try {
+<span class="nc" id="L304">            ret = InetAddress.getByName(value);</span>
+<span class="nc" id="L305">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L306">            argumentSyntaxException(errorMessage, &quot;InetAddress&quot;);</span>
+<span class="nc" id="L307">        }</span>
+<span class="nc" id="L308">        return ret;</span>
+    }
+
+    private synchronized void argumentSyntaxException(String errorMessage, String returnType)
+            throws ArgumentSyntaxException {
+<span class="nc" id="L313">        throw new ArgumentSyntaxException(MessageFormat.format(&quot;Value of {0} in {1} is not type of {2}.&quot;, errorMessage,</span>
+<span class="nc" id="L314">                this.getClass().getSimpleName(), returnType));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

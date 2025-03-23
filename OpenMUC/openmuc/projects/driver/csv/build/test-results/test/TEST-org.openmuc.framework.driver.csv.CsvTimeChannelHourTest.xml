@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:43:09" hostname="TEA" time="0.015">
+  <properties/>
+  <testcase name="testReadT1BeforeT2Valid()" classname="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" time="0.005"/>
+  <testcase name="testReadNextValueInbetween()" classname="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" time="0.001"/>
+  <testcase name="testReadNextValueEndNoRewind()" classname="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" time="0.001"/>
+  <testcase name="testReadT1ValidT2BeforeDisabledRewind()" classname="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" time="0.001"/>
+  <testcase name="testReadT1ValidT2BeforeEnabledRewind()" classname="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" time="0.0"/>
+  <testcase name="testReadNextValueEndWithRewind()" classname="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" time="0.001"/>
+  <testcase name="testReadNextValueStart()" classname="org.openmuc.framework.driver.csv.CsvTimeChannelHourTest" time="0.001"/>
+  <system-out><![CDATA[11:43:09.353 [Test worker] WARN org.openmuc.framework.driver.csv.channel.CsvTimeChannel - Current sampling time is behind last available timestamp of csv file. Returning value corresponding to last timestamp in file.
+11:43:09.358 [Test worker] WARN org.openmuc.framework.driver.csv.channel.CsvTimeChannel - Current sampling time is behind last available timestamp of csv file. Returning value corresponding to last timestamp in file.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

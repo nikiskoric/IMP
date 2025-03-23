@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KnxProcessListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-knx</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.knx</a> &gt; <span class="el_source">KnxProcessListener.java</span></div><h1>KnxProcessListener.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+package org.openmuc.framework.driver.knx;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.openmuc.framework.data.Flag;
+import org.openmuc.framework.data.Record;
+import org.openmuc.framework.driver.knx.value.KnxValue;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.RecordsReceivedListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tuwien.auto.calimero.DetachEvent;
+import tuwien.auto.calimero.GroupAddress;
+import tuwien.auto.calimero.process.ProcessEvent;
+import tuwien.auto.calimero.process.ProcessListener;
+
+public class KnxProcessListener implements ProcessListener {
+
+<span class="nc" id="L43">    private static Logger logger = LoggerFactory.getLogger(KnxProcessListener.class);</span>
+
+    private List&lt;ChannelRecordContainer&gt; containers;
+    private RecordsReceivedListener listener;
+    private final Map&lt;GroupAddress, byte[]&gt; cachedValues;
+
+<span class="nc" id="L49">    public KnxProcessListener() {</span>
+<span class="nc" id="L50">        cachedValues = new LinkedHashMap&lt;&gt;();</span>
+
+<span class="nc" id="L52">        containers = null;</span>
+<span class="nc" id="L53">        listener = null;</span>
+<span class="nc" id="L54">    }</span>
+
+    public synchronized void registerOpenMucListener(List&lt;ChannelRecordContainer&gt; containers,
+            RecordsReceivedListener listener) {
+<span class="nc" id="L58">        this.containers = containers;</span>
+<span class="nc" id="L59">        this.listener = listener;</span>
+<span class="nc" id="L60">    }</span>
+
+    public synchronized void unregisterOpenMucListener() {
+<span class="nc" id="L63">        containers = null;</span>
+<span class="nc" id="L64">        listener = null;</span>
+<span class="nc" id="L65">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see tuwien.auto.calimero.process.ProcessListener#groupWrite(tuwien.auto.calimero.process.ProcessEvent)
+     */
+    @Override
+    public void groupWrite(ProcessEvent e) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (listener != null) {</span>
+<span class="nc" id="L75">            long timestamp = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            for (ChannelRecordContainer container : containers) {</span>
+<span class="nc" id="L77">                KnxGroupDP groupDP = (KnxGroupDP) container.getChannelHandle();</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if (groupDP.getMainAddress().equals(e.getDestination())) {</span>
+<span class="nc" id="L79">                    KnxValue value = groupDP.getKnxValue();</span>
+<span class="nc" id="L80">                    value.setData(e.getASDU());</span>
+<span class="nc" id="L81">                    logger.debug(&quot;Group write: &quot; + e.getDestination());</span>
+
+<span class="nc" id="L83">                    Record record = new Record(value.getOpenMucValue(), timestamp, Flag.VALID);</span>
+
+<span class="nc" id="L85">                    listener.newRecords(createNewRecords(container, record));</span>
+<span class="nc" id="L86">                    break;</span>
+                }
+<span class="nc" id="L88">            }</span>
+        }
+<span class="nc" id="L90">        cachedValues.put(e.getDestination(), e.getASDU());</span>
+<span class="nc" id="L91">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see tuwien.auto.calimero.process.ProcessListener#detached(tuwien.auto.calimero.DetachEvent)
+     */
+    @Override
+    public void detached(DetachEvent e) {
+
+<span class="nc" id="L101">    }</span>
+
+    public Map&lt;GroupAddress, byte[]&gt; getCachedValues() {
+<span class="nc" id="L104">        return cachedValues;</span>
+    }
+
+    private static List&lt;ChannelRecordContainer&gt; createNewRecords(ChannelRecordContainer container, Record record) {
+<span class="nc" id="L108">        List&lt;ChannelRecordContainer&gt; recordContainers = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L109">        container.setRecord(record);</span>
+<span class="nc" id="L110">        recordContainers.add(container);</span>
+<span class="nc" id="L111">        return recordContainers;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

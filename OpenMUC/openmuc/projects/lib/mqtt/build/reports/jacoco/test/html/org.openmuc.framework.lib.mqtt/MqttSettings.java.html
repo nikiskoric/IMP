@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MqttSettings.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-lib-mqtt</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.lib.mqtt</a> &gt; <span class="el_source">MqttSettings.java</span></div><h1>MqttSettings.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.lib.mqtt;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hivemq.client.mqtt.MqttClientTransportConfigBuilder;
+import com.hivemq.client.mqtt.MqttProxyConfig;
+import com.hivemq.client.mqtt.MqttProxyConfigBuilder;
+import com.hivemq.client.mqtt.MqttProxyProtocol;
+
+/**
+ * Holds parameters for MQTT lib that are mostly used to connect to the MQTT broker, but also some OpenMUC specifics,
+ * like the {@link org.openmuc.framework.parser.spi.ParserService} to be used to transform OpenMUC
+ * {@link org.openmuc.framework.data.Record}s in MQTT messages and vice versa, where to buffer messages in case the
+ * connection to the broker is lost etc.
+ */
+public class MqttSettings {
+<span class="fc" id="L46">    private static final Logger logger = LoggerFactory.getLogger(MqttSettings.class);</span>
+
+    private final String host;
+    private final int port;
+    private final int localPort;
+    private final String localAddress;
+    private final String username;
+    private final String password;
+    private final boolean ssl;
+    private final long maxBufferSize;
+    private final long maxFileSize;
+    private final int maxFileCount;
+    private final int connectionRetryInterval;
+    private final int connectionAliveInterval;
+    private final String persistenceDirectory;
+    private final String lastWillTopic;
+    private final byte[] lastWillPayload;
+    private final boolean lastWillAlways;
+    private final String firstWillTopic;
+    private final byte[] firstWillPayload;
+    private final int recoveryChunkSize;
+    private final int recoveryDelay;
+    private final boolean webSocket;
+    private final boolean retainedMessages;
+    private final Optional&lt;ProxySettings&gt; proxySettings;
+    private final String parser;
+
+    public MqttSettings(String host, int port, int localPort, String localAddress, String username, String password,
+            boolean ssl, long maxBufferSize, long maxFileSize, int maxFileCount, int connectionRetryInterval,
+            int connectionAliveInterval, String persistenceDirectory, String lastWillTopic, byte[] lastWillPayload,
+            boolean lastWillAlways, String firstWillTopic, byte[] firstWillPayload, int recoveryChunkSize,
+<span class="fc" id="L77">            int recoveryDelay, boolean webSocket, boolean retainedMessages, String httpProxyConfig, String parser) {</span>
+<span class="fc" id="L78">        this.host = host;</span>
+<span class="fc" id="L79">        this.port = port;</span>
+<span class="fc" id="L80">        this.localPort = localPort;</span>
+<span class="fc" id="L81">        this.localAddress = localAddress;</span>
+<span class="fc" id="L82">        this.username = username;</span>
+<span class="fc" id="L83">        this.password = password;</span>
+<span class="fc" id="L84">        this.ssl = ssl;</span>
+<span class="fc" id="L85">        this.webSocket = webSocket;</span>
+<span class="fc" id="L86">        this.maxBufferSize = maxBufferSize;</span>
+<span class="fc" id="L87">        this.maxFileSize = maxFileSize;</span>
+<span class="fc" id="L88">        this.maxFileCount = maxFileCount;</span>
+<span class="fc" id="L89">        this.connectionRetryInterval = connectionRetryInterval;</span>
+<span class="fc" id="L90">        this.connectionAliveInterval = connectionAliveInterval;</span>
+<span class="fc" id="L91">        this.persistenceDirectory = persistenceDirectory;</span>
+<span class="fc" id="L92">        this.lastWillTopic = lastWillTopic;</span>
+<span class="fc" id="L93">        this.lastWillPayload = lastWillPayload;</span>
+<span class="fc" id="L94">        this.lastWillAlways = lastWillAlways;</span>
+<span class="fc" id="L95">        this.firstWillTopic = firstWillTopic;</span>
+<span class="fc" id="L96">        this.firstWillPayload = firstWillPayload;</span>
+<span class="fc" id="L97">        this.recoveryChunkSize = recoveryChunkSize;</span>
+<span class="fc" id="L98">        this.recoveryDelay = recoveryDelay;</span>
+<span class="fc" id="L99">        this.retainedMessages = retainedMessages;</span>
+<span class="fc" id="L100">        this.proxySettings = ProxySettings.parse(httpProxyConfig);</span>
+<span class="fc" id="L101">        this.parser = parser;</span>
+<span class="fc" id="L102">    }</span>
+
+    public String getHost() {
+<span class="nc" id="L105">        return host;</span>
+    }
+
+    public int getPort() {
+<span class="nc" id="L109">        return port;</span>
+    }
+
+    public int getLocalPort() {
+<span class="nc" id="L113">        return localPort;</span>
+    }
+
+    public String getLocalAddress() {
+<span class="nc" id="L117">        return localAddress;</span>
+    }
+
+    public String getUsername() {
+<span class="nc" id="L121">        return username;</span>
+    }
+
+    public String getPassword() {
+<span class="nc" id="L125">        return password;</span>
+    }
+
+    public boolean isSsl() {
+<span class="nc" id="L129">        return ssl;</span>
+    }
+
+    /**
+     * @return maximum buffer size in Kibibytes
+     */
+    public long getMaxBufferSize() {
+<span class="fc" id="L136">        return maxBufferSize;</span>
+    }
+
+    /**
+     * @return maximum file buffer size in Kibibytes
+     */
+    public long getMaxFileSize() {
+<span class="fc" id="L143">        return maxFileSize;</span>
+    }
+
+    public int getMaxFileCount() {
+<span class="fc" id="L147">        return maxFileCount;</span>
+    }
+
+    public long getConnectionRetryInterval() {
+<span class="nc" id="L151">        return connectionRetryInterval;</span>
+    }
+
+    public int getConnectionAliveInterval() {
+<span class="nc" id="L155">        return connectionAliveInterval;</span>
+    }
+
+    public String getPersistenceDirectory() {
+<span class="fc" id="L159">        return persistenceDirectory;</span>
+    }
+
+    public String getLastWillTopic() {
+<span class="nc" id="L163">        return lastWillTopic;</span>
+    }
+
+    public byte[] getLastWillPayload() {
+<span class="nc" id="L167">        return lastWillPayload;</span>
+    }
+
+    public boolean isLastWillSet() {
+<span class="nc bnc" id="L171" title="All 4 branches missed.">        return !lastWillTopic.equals(&quot;&quot;) &amp;&amp; lastWillPayload.length != 0;</span>
+    }
+
+    public boolean isLastWillAlways() {
+<span class="nc bnc" id="L175" title="All 4 branches missed.">        return lastWillAlways &amp;&amp; isLastWillSet();</span>
+    }
+
+    public String getFirstWillTopic() {
+<span class="nc" id="L179">        return firstWillTopic;</span>
+    }
+
+    public byte[] getFirstWillPayload() {
+<span class="nc" id="L183">        return firstWillPayload;</span>
+    }
+
+    public boolean isFirstWillSet() {
+<span class="pc bpc" id="L187" title="3 of 4 branches missed.">        return !firstWillTopic.equals(&quot;&quot;) &amp;&amp; lastWillPayload.length != 0;</span>
+    }
+
+    public boolean isRecoveryLimitSet() {
+<span class="pc bpc" id="L191" title="3 of 4 branches missed.">        return recoveryChunkSize &gt; 0 &amp;&amp; recoveryDelay &gt; 0;</span>
+    }
+
+    public int getRecoveryChunkSize() {
+<span class="fc" id="L195">        return recoveryChunkSize;</span>
+    }
+
+    public int getRecoveryDelay() {
+<span class="fc" id="L199">        return recoveryDelay;</span>
+    }
+
+    public boolean isWebSocket() {
+<span class="nc" id="L203">        return webSocket;</span>
+    }
+
+    public boolean isRetainedMessages() {
+<span class="nc" id="L207">        return retainedMessages;</span>
+    }
+
+    public boolean hasSupportedProxyConfigured() {
+<span class="fc" id="L211">        return this.proxySettings.isPresent();</span>
+    }
+
+    public String getParser() {
+<span class="nc" id="L215">        return parser;</span>
+    }
+
+    /**
+     * Returns a string of all settings, always uses '*****' as password string.
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L223">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L224">        sb.append(&quot;host=&quot;).append(getHost()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L225">        sb.append(&quot;port=&quot;).append(getPort()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L226">        sb.append(&quot;localPort=&quot;).append(getLocalPort()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L227">        sb.append(&quot;localAddress=&quot;).append(getLocalAddress()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L228">        sb.append(&quot;username=&quot;).append(getUsername()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L229">        sb.append(&quot;password=&quot;).append(&quot;*****&quot;).append(&quot;\n&quot;);</span>
+<span class="nc" id="L230">        sb.append(&quot;ssl=&quot;).append(isSsl()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L231">        sb.append(&quot;webSocket=&quot;).append(isWebSocket()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L232">        sb.append(&quot;retainedMessages=&quot;).append(isRetainedMessages()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L233">        sb.append(&quot;persistenceDirectory=&quot;).append(getPersistenceDirectory()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L234">        sb.append(&quot;maxBufferSize=&quot;).append(getMaxBufferSize()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L235">        sb.append(&quot;maxFileCount=&quot;).append(getMaxFileCount()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L236">        sb.append(&quot;maxFileSize=&quot;).append(getMaxFileSize()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L237">        sb.append(&quot;connectionRetryInterval=&quot;).append(getConnectionRetryInterval()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L238">        sb.append(&quot;connectionAliveInterval=&quot;).append(getConnectionAliveInterval()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L239">        sb.append(&quot;lastWillTopic=&quot;).append(getLastWillTopic()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L240">        sb.append(&quot;lastWillPayload=&quot;).append(new String(getLastWillPayload())).append(&quot;\n&quot;);</span>
+<span class="nc" id="L241">        sb.append(&quot;lastWillAlways=&quot;).append(isLastWillAlways()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L242">        sb.append(&quot;firstWillTopic=&quot;).append(getFirstWillTopic()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L243">        sb.append(&quot;firstWillPayload=&quot;).append(new String(getFirstWillPayload()));</span>
+<span class="nc" id="L244">        sb.append(&quot;recoveryChunkSize=&quot;).append(getRecoveryChunkSize()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L245">        sb.append(&quot;recoveryDelay=&quot;).append(getRecoveryDelay()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L246">        return sb.toString();</span>
+    }
+
+    public Optional&lt;ProxySettings&gt; getProxySettings() {
+<span class="fc" id="L250">        return proxySettings;</span>
+    }
+
+    public void applyProxy(MqttClientTransportConfigBuilder transportConfigBuilder) {
+<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (proxySettings.isPresent()) {</span>
+<span class="fc" id="L255">            transportConfigBuilder.proxyConfig(proxySettings.get().toMqttProxyConfig());</span>
+<span class="fc" id="L256">            logger.debug(&quot;Applied proxy settings&quot;);</span>
+        }
+        else {
+<span class="fc" id="L259">            logger.debug(&quot;No proxy set&quot;);</span>
+        }
+<span class="fc" id="L261">    }</span>
+
+    /**
+     * Holds information about the used proxy
+     */
+    public static class ProxySettings {
+
+        // examples for valid proxies
+<span class="fc" id="L269">        public static String PROXY_HTTP_WITH_USER = &quot;http://user:password@host:port&quot;;</span>
+<span class="fc" id="L270">        public static String PROXY_HTTP = &quot;http://host:port&quot;;</span>
+<span class="fc" id="L271">        public static String PROXY_SOCKS4 = &quot;socks4://host:port&quot;;</span>
+<span class="fc" id="L272">        public static String PROXY_SOCKS5 = &quot;socks5://host:port&quot;;</span>
+
+        private final ProxyProtocolMapping protocol;
+        private final String hostname;
+        private final int port;
+        private final Optional&lt;String&gt; user;
+        private final Optional&lt;String&gt; password;
+
+        public ProxySettings(ProxyProtocolMapping protocol, String hostname, int port, Optional&lt;String&gt; user,
+<span class="nc" id="L281">                Optional&lt;String&gt; password) {</span>
+<span class="nc" id="L282">            this.protocol = protocol;</span>
+<span class="nc" id="L283">            this.hostname = hostname;</span>
+<span class="nc" id="L284">            this.port = port;</span>
+<span class="nc" id="L285">            this.user = user;</span>
+<span class="nc" id="L286">            this.password = password;</span>
+<span class="nc" id="L287">        }</span>
+
+<span class="fc" id="L289">        private ProxySettings(String proxyConfig) {</span>
+            final String httpProxyStringWithSchema;
+<span class="fc bfc" id="L291" title="All 2 branches covered.">            if (proxyConfig.contains(&quot;://&quot;)) {</span>
+<span class="fc" id="L292">                httpProxyStringWithSchema = proxyConfig;</span>
+            }
+            else {
+<span class="fc" id="L295">                String defaultSchema = ProxyProtocolMapping.HTTP.getSchema() + &quot;://&quot;;</span>
+<span class="fc" id="L296">                logger.debug(&quot;No proxy schema set. Assuming '{}'&quot;, defaultSchema);</span>
+<span class="fc" id="L297">                httpProxyStringWithSchema = defaultSchema + proxyConfig;</span>
+            }
+            try {
+<span class="fc" id="L300">                URI uri = new URI(httpProxyStringWithSchema);</span>
+<span class="fc" id="L301">                this.protocol = ProxyProtocolMapping.parse(uri);</span>
+<span class="pc bpc" id="L302" title="1 of 4 branches missed.">                if (uri.getHost() == null || uri.getHost().isEmpty()) {</span>
+<span class="fc" id="L303">                    throw new IllegalArgumentException(&quot;Bad proxy config '&quot; + proxyConfig + &quot;': host is missing&quot;);</span>
+                }
+<span class="fc" id="L305">                this.hostname = uri.getHost();</span>
+<span class="fc" id="L306">                this.port = uri.getPort();</span>
+<span class="fc" id="L307">                String userInfo = uri.getUserInfo();</span>
+<span class="pc bpc" id="L308" title="2 of 6 branches missed.">                if (userInfo != null &amp;&amp; !userInfo.isEmpty() &amp;&amp; userInfo.contains(&quot;:&quot;)) {</span>
+<span class="fc" id="L309">                    String[] split = userInfo.split(&quot;:&quot;);</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">                    if (split.length == 2) {</span>
+<span class="fc" id="L311">                        this.user = Optional.of(split[0]);</span>
+<span class="fc" id="L312">                        this.password = Optional.of(split[1]);</span>
+                    }
+                    else {
+<span class="nc" id="L315">                        throw new IllegalArgumentException(&quot;Bad user/password in proxy settings&quot;);</span>
+                    }
+<span class="fc" id="L317">                }</span>
+                else {
+<span class="fc" id="L319">                    this.user = Optional.empty();</span>
+<span class="fc" id="L320">                    this.password = Optional.empty();</span>
+                }
+<span class="fc" id="L322">            } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L323">                throw e;</span>
+<span class="nc" id="L324">            } catch (Exception e) {</span>
+<span class="nc" id="L325">                throw new IllegalArgumentException(&quot;Unable to parse proxy config from '&quot; + proxyConfig + &quot;'&quot;, e);</span>
+<span class="fc" id="L326">            }</span>
+<span class="fc" id="L327">        }</span>
+
+        public static Optional&lt;ProxySettings&gt; parse(String proxyConfig) throws IllegalArgumentException {
+<span class="fc bfc" id="L330" title="All 4 branches covered.">            if ((proxyConfig == null ? &quot;&quot; : proxyConfig).trim().isEmpty()) {</span>
+<span class="fc" id="L331">                return Optional.empty();</span>
+            }
+            else {
+                try {
+<span class="fc" id="L335">                    ProxySettings settings = new ProxySettings(proxyConfig);</span>
+<span class="fc" id="L336">                    logger.debug(&quot;Parsed {}&quot;, settings);</span>
+<span class="fc" id="L337">                    return Optional.of(settings);</span>
+<span class="fc" id="L338">                } catch (Exception e) {</span>
+<span class="fc" id="L339">                    throw new IllegalArgumentException(</span>
+                            &quot;Unable to parse MQTT Settings from &quot; + proxyConfig + &quot;. Defaulting to no proxy.&quot;, e);
+                }
+            }
+        }
+
+        public MqttProxyConfig toMqttProxyConfig() {
+<span class="fc" id="L346">            MqttProxyConfigBuilder proxyConfigBuilder = MqttProxyConfig.builder();</span>
+<span class="fc" id="L347">            proxyConfigBuilder//</span>
+<span class="fc" id="L348">                    .host(this.hostname)//</span>
+<span class="fc" id="L349">                    .port(this.port)</span>
+<span class="fc" id="L350">                    .protocol(this.protocol.mqttProxyProtocol);</span>
+
+<span class="fc bfc" id="L352" title="All 2 branches covered.">            if (user.isPresent()) {</span>
+<span class="fc" id="L353">                proxyConfigBuilder.username(user.get());</span>
+            }
+<span class="fc bfc" id="L355" title="All 2 branches covered.">            if (password.isPresent()) {</span>
+<span class="fc" id="L356">                proxyConfigBuilder.password(password.get());</span>
+            }
+
+<span class="fc" id="L359">            return proxyConfigBuilder.build();</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc" id="L364">            return &quot;ProxySettings{&quot; + &quot;protocol=&quot; + protocol + &quot;, hostname='&quot; + hostname + '\'' + &quot;, port=&quot; + port</span>
+<span class="fc" id="L365">                    + &quot;, user=&quot; + user.orElse(&quot;&lt;none&gt;&quot;) + &quot;, hasPassword=&quot; + password.isPresent() + '}';</span>
+        }
+
+        @Override
+        public boolean equals(Object o) {
+<span class="nc bnc" id="L370" title="All 2 branches missed.">            if (this == o) {</span>
+<span class="nc" id="L371">                return true;</span>
+            }
+<span class="nc bnc" id="L373" title="All 4 branches missed.">            if (o == null || getClass() != o.getClass()) {</span>
+<span class="nc" id="L374">                return false;</span>
+            }
+<span class="nc" id="L376">            ProxySettings settings = (ProxySettings) o;</span>
+<span class="nc bnc" id="L377" title="All 6 branches missed.">            return port == settings.port &amp;&amp; protocol == settings.protocol &amp;&amp; Objects.equals(hostname, settings.hostname)</span>
+<span class="nc bnc" id="L378" title="All 4 branches missed.">                    &amp;&amp; Objects.equals(user, settings.user) &amp;&amp; Objects.equals(password, settings.password);</span>
+        }
+
+        @Override
+        public int hashCode() {
+<span class="nc" id="L383">            return Objects.hash(protocol, hostname, port, user, password);</span>
+        }
+    }
+
+    /**
+     * Parses URI proxy schemes and maps them to {@link MqttProxyProtocol} values.
+     */
+<span class="fc" id="L390">    public enum ProxyProtocolMapping {</span>
+<span class="fc" id="L391">        HTTP(&quot;http&quot;, MqttProxyProtocol.HTTP),</span>
+<span class="fc" id="L392">        SOCKS_4(&quot;socks4&quot;, MqttProxyProtocol.SOCKS_4),</span>
+<span class="fc" id="L393">        SOCKS_5(&quot;socks5&quot;, MqttProxyProtocol.SOCKS_5);</span>
+
+        String schema;
+        MqttProxyProtocol mqttProxyProtocol;
+
+<span class="fc" id="L398">        ProxyProtocolMapping(String schema, MqttProxyProtocol protocol) {</span>
+<span class="fc" id="L399">            this.schema = schema;</span>
+<span class="fc" id="L400">            this.mqttProxyProtocol = protocol;</span>
+<span class="fc" id="L401">        }</span>
+
+        public String getSchema() {
+<span class="fc" id="L404">            return schema;</span>
+        }
+
+        static ProxyProtocolMapping parse(URI uri) {
+<span class="fc" id="L408">            Optional&lt;ProxyProtocolMapping&gt; existingMapping = Arrays.stream(ProxyProtocolMapping.values())</span>
+<span class="fc" id="L409">                    .filter(mapping -&gt; uri.getScheme().startsWith(mapping.getSchema()))</span>
+<span class="fc" id="L410">                    .findFirst();</span>
+<span class="fc" id="L411">            return existingMapping.orElseThrow(() -&gt; new IllegalArgumentException(&quot;Unknown proxy schema '&quot;</span>
+<span class="fc" id="L412">                    + uri.getScheme() + &quot;'. Known schemes are: &quot; + ProxyProtocolMapping.values()));</span>
+        }
+
+        Collection&lt;String&gt; getKnownSchemas() {
+<span class="nc" id="L416">            return Arrays.stream(ProxyProtocolMapping.values())</span>
+<span class="nc" id="L417">                    .map(ProxyProtocolMapping::getSchema)</span>
+<span class="nc" id="L418">                    .collect(Collectors.toSet());</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc" id="L423">            return getSchema();</span>
+        }
+    }
+
+    // TODO: maybe add method to make sure the proxy can be connected to? the error message is quite ok,
+    // but could be more clear that the proxy is causing issue
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

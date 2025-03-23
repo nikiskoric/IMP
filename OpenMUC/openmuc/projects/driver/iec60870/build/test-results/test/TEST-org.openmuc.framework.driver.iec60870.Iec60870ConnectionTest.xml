@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.driver.iec60870.Iec60870ConnectionTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:43:15" hostname="TEA" time="0.086">
+  <properties/>
+  <testcase name="testSetupClientSap_AllowedTypes_WithInvalidId()" classname="org.openmuc.framework.driver.iec60870.Iec60870ConnectionTest" time="0.067"/>
+  <testcase name="testSetupClientSap_WithCommonAddressFieldLength()" classname="org.openmuc.framework.driver.iec60870.Iec60870ConnectionTest" time="0.008"/>
+  <testcase name="testSetupClientSap_AllowedTypes_ValidIds()" classname="org.openmuc.framework.driver.iec60870.Iec60870ConnectionTest" time="0.009"/>
+  <system-out><![CDATA[Port = 20866
+Connection Port = 20866
+11:43:15.716 [Test worker] ERROR org.openmuc.framework.driver.iec60870.Iec60870Connection - Device settings contains not allowed value for "at" (allowed ASduType). Only int values between 1 and 255 are allowed.
+11:43:15.720 [Test worker] DEBUG org.openmuc.framework.driver.iec60870.Iec60870Connection - Try to connect to: 127.0.0.1:20866
+TestClient has connected.
+11:43:15.742 [Test worker] INFO org.openmuc.framework.driver.iec60870.Iec60870Connection - Driver-IEC60870: successful connected to 127.0.0.1:20866
+11:43:15.750 [Test worker] DEBUG org.openmuc.framework.driver.iec60870.Iec60870Connection - Driver-IEC60870: successful sent startDT act to 127.0.0.1:20866and got startDT con.
+11:43:15.751 [Test worker] ERROR org.openmuc.framework.driver.iec60870.Iec60870Connection - Device settings contains not allowed value for "at" (allowed ASduType). Only int values between 1 and 255 are allowed.
+Port = 29530
+Connection Port = 29530
+11:43:15.758 [Test worker] DEBUG org.openmuc.framework.driver.iec60870.Iec60870Connection - Try to connect to: 127.0.0.1:29530
+11:43:15.760 [Test worker] INFO org.openmuc.framework.driver.iec60870.Iec60870Connection - Driver-IEC60870: successful connected to 127.0.0.1:29530
+TestClient has connected.
+11:43:15.763 [Test worker] DEBUG org.openmuc.framework.driver.iec60870.Iec60870Connection - Driver-IEC60870: successful sent startDT act to 127.0.0.1:29530and got startDT con.
+Port = 27036
+Connection Port = 27036
+11:43:15.768 [Test worker] DEBUG org.openmuc.framework.driver.iec60870.Iec60870Connection - Try to connect to: 127.0.0.1:27036
+11:43:15.770 [Test worker] INFO org.openmuc.framework.driver.iec60870.Iec60870Connection - Driver-IEC60870: successful connected to 127.0.0.1:27036
+TestClient has connected.
+11:43:15.773 [Test worker] DEBUG org.openmuc.framework.driver.iec60870.Iec60870Connection - Driver-IEC60870: successful sent startDT act to 127.0.0.1:27036and got startDT con.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

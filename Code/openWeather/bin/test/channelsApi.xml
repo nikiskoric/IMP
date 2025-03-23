@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+<driver id="openweathermap-api-driver">
+    <connectRetryInterval>30s</connectRetryInterval>
+    <device id="openweathermap">
+        <deviceAddress>someAddress</deviceAddress>
+        <settings>
+        	apiURL=https://api.openweathermap.org/data/2.5/;
+            apiKey=789444d16a5e6ee2d9cea8706f0283f3;
+            city=Belgrade;
+            units=metric;
+            fetchingPeriodMinutes=10;
+        </settings>
+		<channel id="temperature">
+            <channelAddress>weather</channelAddress>
+            <valueType length="1024">STRING</valueType>
+        </channel>
+	</device>
+</driver>
+</configuration>

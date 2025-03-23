@@ -1,0 +1,54 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:ex="http://example.com/ontology#">
+    <!-- Device 1 -->
+    <rdf:Description rdf:about="http://example.com/ontology#Device1">
+        <rdf:type rdf:resource="http://example.com/ontology#Device"/>
+        <ex:deviceId>1</ex:deviceId>
+        <ex:description>Device One</ex:description>
+        <ex:deviceAddress>/dev/one</ex:deviceAddress>
+        <ex:hasChannel rdf:resource="http://example.com/ontology#Channel1"/>
+        <ex:hasChannel rdf:resource="http://example.com/ontology#Channel2"/>
+    </rdf:Description>
+
+    <!-- Channel 1 -->
+    <rdf:Description rdf:about="http://example.com/ontology#Channel1">
+        <rdf:type rdf:resource="http://example.com/ontology#Channel"/>
+        <ex:channelId>c1</ex:channelId>
+        <ex:unit>kW</ex:unit>
+        <ex:loggingInterval>5s</ex:loggingInterval>
+        <ex:description>Channel One</ex:description>
+        <ex:channelAddress>/chan/one</ex:channelAddress>
+        <ex:samplingInterval>5s</ex:samplingInterval>
+    </rdf:Description>
+
+    <!-- Channel 2 -->
+    <rdf:Description rdf:about="http://example.com/ontology#Channel2">
+        <rdf:type rdf:resource="http://example.com/ontology#Channel"/>
+        <ex:channelId>c2</ex:channelId>
+        <ex:unit>kW</ex:unit>
+        <ex:loggingInterval>10s</ex:loggingInterval>
+        <ex:description>Channel Two</ex:description>
+        <ex:channelAddress>/chan/two</ex:channelAddress>
+        <ex:samplingInterval>5s</ex:samplingInterval>
+    </rdf:Description>
+
+    <!-- Device 2 -->
+    <rdf:Description rdf:about="http://example.com/ontology#Device2">
+        <rdf:type rdf:resource="http://example.com/ontology#Device"/>
+        <ex:deviceId>2</ex:deviceId>
+        <ex:description>Device Two</ex:description>
+        <ex:deviceAddress>/dev/two</ex:deviceAddress>
+        <ex:hasChannel rdf:resource="http://example.com/ontology#Channel3"/>
+    </rdf:Description>
+
+    <!-- Channel 3 -->
+    <rdf:Description rdf:about="http://example.com/ontology#Channel3">
+        <rdf:type rdf:resource="http://example.com/ontology#Channel"/>
+        <ex:channelId>c3</ex:channelId>
+        <ex:unit>MW</ex:unit>
+        <ex:loggingInterval>15s</ex:loggingInterval>
+        <ex:description>Channel Three</ex:description>
+        <ex:channelAddress>/chan/three</ex:channelAddress>
+        <ex:samplingInterval>15s</ex:samplingInterval>
+    </rdf:Description>
+</rdf:RDF>

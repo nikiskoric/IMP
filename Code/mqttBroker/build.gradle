@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'driver'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+
+    implementation 'org.openmuc.framework:openmuc-core-spi:0.20.1'
+    implementation 'org.openmuc.framework:openmuc-driver-mqtt:0.20.1'
+    implementation 'org.openmuc.framework:openmuc-core-datamanager:0.20.1'
+
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
+
+    testImplementation 'org.mockito:mockito-core:5.15.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
+}
+
+test {
+    useJUnitPlatform()
+}

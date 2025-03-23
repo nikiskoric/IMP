@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.lib.mqtt.MqttBufferHandlerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2024-12-18T10:42:28" hostname="TEA" time="0.145">
+  <properties/>
+  <testcase name="addToRAMBuffer()" classname="org.openmuc.framework.lib.mqtt.MqttBufferHandlerTest" time="0.114"/>
+  <testcase name="removeNextMessage()" classname="org.openmuc.framework.lib.mqtt.MqttBufferHandlerTest" time="0.006"/>
+  <testcase name="addToRAMBufferWithFilePersistenceDisabled()" classname="org.openmuc.framework.lib.mqtt.MqttBufferHandlerTest" time="0.002"/>
+  <testcase name="addToFileBuffer()" classname="org.openmuc.framework.lib.mqtt.MqttBufferHandlerTest" time="0.018"/>
+  <testcase name="isEmpty()" classname="org.openmuc.framework.lib.mqtt.MqttBufferHandlerTest" time="0.001"/>
+  <system-out><![CDATA[11:42:28.290 [Test worker] DEBUG org.openmuc.framework.lib.mqtt.MqttBufferHandler - move buffered messages from RAM to file
+11:42:28.298 [Test worker] INFO org.openmuc.framework.lib.filePersistence.FilePersistence - create new file: C:\tmp\openmuc\buffer_handler_test\test\buffer.0.log
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MqttWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-lib-mqtt</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.lib.mqtt</a> &gt; <span class="el_source">MqttWriter.java</span></div><h1>MqttWriter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.lib.mqtt;
+
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
+
+public class MqttWriter {
+<span class="fc" id="L42">    private static final Logger logger = LoggerFactory.getLogger(MqttWriter.class);</span>
+
+    private final MqttConnection connection;
+<span class="fc" id="L45">    private boolean connected = false;</span>
+<span class="fc" id="L46">    private final AtomicBoolean cancelReconnect = new AtomicBoolean(false);</span>
+    private LocalDateTime timeOfConnectionLoss;
+<span class="fc" id="L48">    private final SimpleDateFormat sdf = new SimpleDateFormat(&quot;HH:mm:ss&quot;, Locale.getDefault());</span>
+<span class="fc" id="L49">    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span>
+    private final MqttBufferHandler buffer;
+    private final String pid;
+
+<span class="fc" id="L53">    public MqttWriter(MqttConnection connection, String pid) {</span>
+<span class="fc" id="L54">        this.connection = connection;</span>
+<span class="fc" id="L55">        addConnectedListener();</span>
+<span class="fc" id="L56">        addDisconnectedListener();</span>
+<span class="fc" id="L57">        MqttSettings s = connection.getSettings();</span>
+<span class="fc" id="L58">        buffer = new MqttBufferHandler(s.getMaxBufferSize(), s.getMaxFileCount(), s.getMaxFileSize(),</span>
+<span class="fc" id="L59">                s.getPersistenceDirectory());</span>
+<span class="fc" id="L60">        this.pid = pid;</span>
+<span class="fc" id="L61">    }</span>
+
+    private void emptyFileBuffer() {
+
+<span class="fc" id="L65">        log(&quot;Clearing file buffer.&quot;);</span>
+<span class="fc" id="L66">        String[] buffers = buffer.getBuffers();</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (buffers.length == 0) {</span>
+<span class="nc" id="L68">            log(&quot;File buffer already empty.&quot;);</span>
+        }
+<span class="fc" id="L70">        int messageCount = 0;</span>
+<span class="fc" id="L71">        int chunkSize = connection.getSettings().getRecoveryChunkSize();</span>
+<span class="fc" id="L72">        int delay = connection.getSettings().getRecoveryDelay();</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        for (String buffer : buffers) {</span>
+<span class="fc" id="L74">            Iterator&lt;MessageTuple&gt; iterator = this.buffer.getMessageIterator(buffer);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            while (iterator.hasNext()) {</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">                if (!connected) {</span>
+<span class="nc" id="L77">                    warn(&quot;Recovery from file buffer interrupted by connection loss.&quot;);</span>
+<span class="nc" id="L78">                    return;</span>
+                }
+<span class="fc" id="L80">                MessageTuple messageTuple = iterator.next();</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L82">                    trace(&quot;Resend from file: {}&quot;, new String(messageTuple.message));</span>
+                }
+<span class="fc" id="L84">                write(messageTuple.topic, messageTuple.message);</span>
+<span class="fc" id="L85">                messageCount++;</span>
+<span class="pc bpc" id="L86" title="3 of 4 branches missed.">                if (connection.getSettings().isRecoveryLimitSet() &amp;&amp; messageCount == chunkSize) {</span>
+<span class="nc" id="L87">                    messageCount = 0;</span>
+                    try {
+<span class="nc" id="L89">                        Thread.sleep(delay);</span>
+<span class="nc" id="L90">                    } catch (InterruptedException e) {</span>
+<span class="nc" id="L91">                        e.printStackTrace();</span>
+<span class="nc" id="L92">                    }</span>
+                }
+<span class="fc" id="L94">            }</span>
+        }
+
+<span class="fc" id="L97">        log(&quot;Empty file buffer done.&quot;);</span>
+<span class="fc" id="L98">    }</span>
+
+    private void addConnectedListener() {
+<span class="fc" id="L101">        connection.addConnectedListener(context -&gt; {</span>
+
+            // FIXME null checks currently workaround for MqttWriterTest, it is not set there
+<span class="fc" id="L104">            String serverHost = &quot;UNKNOWN&quot;;</span>
+<span class="fc" id="L105">            String serverPort = &quot;UNKNOWN&quot;;</span>
+
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">            if (context.getClientConfig() != null) {</span>
+<span class="nc" id="L108">                serverHost = context.getClientConfig().getServerHost();</span>
+<span class="nc" id="L109">                serverPort = String.valueOf(context.getClientConfig().getServerPort());</span>
+            }
+
+<span class="fc" id="L112">            log(&quot;connected to broker {}:{}&quot;, serverHost, serverPort);</span>
+<span class="fc" id="L113">            connected = true;</span>
+
+<span class="fc" id="L115">            MqttSettings settings = connection.getSettings();</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">            if (settings.isFirstWillSet()) {</span>
+<span class="nc" id="L117">                write(settings.getFirstWillTopic(), settings.getFirstWillPayload());</span>
+            }
+
+<span class="fc" id="L120">            Thread recovery = new Thread(this::emptyBuffer, &quot;MqttRecovery&quot;);</span>
+<span class="fc" id="L121">            recovery.start();</span>
+
+<span class="fc" id="L123">        });</span>
+<span class="fc" id="L124">    }</span>
+
+    private void emptyBuffer() {
+<span class="fc" id="L127">        log(&quot;Clearing memory (RAM) buffer.&quot;);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (buffer.isEmpty()) {</span>
+<span class="fc" id="L129">            log(&quot;Memory buffer already empty.&quot;);</span>
+        }
+<span class="fc" id="L131">        int messageCount = 0;</span>
+<span class="fc" id="L132">        int chunkSize = connection.getSettings().getRecoveryChunkSize();</span>
+<span class="fc" id="L133">        int delay = connection.getSettings().getRecoveryDelay();</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        while (!buffer.isEmpty()) {</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">            if (!connected) {</span>
+<span class="nc" id="L136">                warn(&quot;Recovery from memory buffer interrupted by connection loss.&quot;);</span>
+<span class="nc" id="L137">                return;</span>
+            }
+<span class="fc" id="L139">            MessageTuple messageTuple = buffer.removeNextMessage();</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L141">                trace(&quot;Resend from memory: {}&quot;, new String(messageTuple.message));</span>
+            }
+<span class="fc" id="L143">            write(messageTuple.topic, messageTuple.message);</span>
+<span class="fc" id="L144">            messageCount++;</span>
+<span class="pc bpc" id="L145" title="3 of 4 branches missed.">            if (connection.getSettings().isRecoveryLimitSet() &amp;&amp; messageCount == chunkSize) {</span>
+<span class="nc" id="L146">                messageCount = 0;</span>
+                try {
+<span class="nc" id="L148">                    Thread.sleep(delay);</span>
+<span class="nc" id="L149">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L150">                    e.printStackTrace();</span>
+<span class="nc" id="L151">                }</span>
+            }
+
+<span class="fc" id="L154">        }</span>
+<span class="fc" id="L155">        log(&quot;Empty memory buffer done.&quot;);</span>
+<span class="fc" id="L156">        emptyFileBuffer();</span>
+<span class="fc" id="L157">    }</span>
+
+    /**
+     * Required for buffering
+     */
+    private void addDisconnectedListener() {
+<span class="fc" id="L163">        connection.addDisconnectedListener(context -&gt; {</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">            if (cancelReconnect.getAndSet(false)) {</span>
+<span class="nc" id="L165">                logger.debug(&quot;Called during shutdown&quot;);</span>
+<span class="nc" id="L166">                context.getReconnector().reconnect(false);</span>
+            }
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">            if (context.getReconnector().isReconnect()) {</span>
+<span class="fc" id="L169">                logger.debug(&quot;Disconnected&quot;);</span>
+<span class="fc" id="L170">                String serverHost = context.getClientConfig().getServerHost();</span>
+<span class="fc" id="L171">                String cause = context.getCause().getMessage();</span>
+<span class="fc" id="L172">                String source = context.getSource().name();</span>
+
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">                if (connected) {</span>
+<span class="fc" id="L175">                    handleDisconnect(serverHost, cause);</span>
+                }
+                else {
+                    // for logging
+<span class="nc" id="L179">                    handleFailedReconnect(serverHost, cause, source);</span>
+                }
+            }
+<span class="fc" id="L182">        });</span>
+<span class="fc" id="L183">    }</span>
+
+    private void handleFailedReconnect(String serverHost, String cause, String source) {
+<span class="nc" id="L186">        logger.debug(&quot;handling failed reconnect&quot;);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (isInitialConnect()) {</span>
+<span class="nc" id="L188">            timeOfConnectionLoss = LocalDateTime.now();</span>
+        }
+<span class="nc" id="L190">        long d = Duration.between(timeOfConnectionLoss, LocalDateTime.now()).getSeconds() * 1000;</span>
+<span class="nc" id="L191">        String duration = sdf.format(new Date(d - TimeZone.getDefault().getRawOffset()));</span>
+<span class="nc" id="L192">        warn(&quot;Reconnect failed: broker '{}'. Source: '{}'. Cause: '{}'. Connection lost at: {}, duration {}&quot;,</span>
+<span class="nc" id="L193">                serverHost, source, cause, dateFormatter.format(timeOfConnectionLoss), duration);</span>
+<span class="nc" id="L194">    }</span>
+
+    public boolean isInitialConnect() {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        return timeOfConnectionLoss == null;</span>
+    }
+
+    private void handleDisconnect(String serverHost, String cause) {
+<span class="fc" id="L201">        timeOfConnectionLoss = LocalDateTime.now();</span>
+<span class="fc" id="L202">        connected = false;</span>
+<span class="fc" id="L203">        warn(&quot;Connection lost: broker '{}'. Cause: '{}'&quot;, serverHost, cause);</span>
+<span class="fc" id="L204">    }</span>
+
+    /**
+     * Publishes a message to the specified topic
+     *
+     * @param topic
+     *            the topic on which to publish the message
+     * @param message
+     *            the message to be published
+     */
+    public void write(String topic, byte[] message) {
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (connected) {</span>
+<span class="fc" id="L216">            startPublishing(topic, message);</span>
+        }
+        else {
+<span class="fc" id="L219">            warn(&quot;No connection to broker - adding message to buffer&quot;);</span>
+<span class="fc" id="L220">            buffer.add(topic, message);</span>
+        }
+<span class="fc" id="L222">    }</span>
+
+    private void startPublishing(String topic, byte[] message) {
+<span class="fc" id="L225">        publish(topic, message).whenComplete((publish, exception) -&gt; {</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">            if (exception != null) {</span>
+<span class="nc" id="L227">                warn(&quot;Connection issue: {} message could not be sent. Adding message to buffer&quot;,</span>
+<span class="nc" id="L228">                        exception.getMessage());</span>
+<span class="nc" id="L229">                buffer.add(topic, message);</span>
+            }
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">            else if (logger.isTraceEnabled()) {</span>
+<span class="nc" id="L232">                trace(&quot;Message successfully delivered on topic {}&quot;, topic);</span>
+            }
+<span class="fc" id="L234">        });</span>
+<span class="fc" id="L235">    }</span>
+
+    CompletableFuture&lt;Mqtt3Publish&gt; publish(String topic, byte[] message) {
+<span class="nc" id="L238">        return connection.getClient()</span>
+<span class="nc" id="L239">                .publishWith()</span>
+<span class="nc" id="L240">                .topic(topic)</span>
+<span class="nc" id="L241">                .retain(connection.getSettings().isRetainedMessages())</span>
+<span class="nc" id="L242">                .payload(message)</span>
+<span class="nc" id="L243">                .send();</span>
+    }
+
+    public MqttConnection getConnection() {
+<span class="nc" id="L247">        return connection;</span>
+    }
+
+    public boolean isConnected() {
+<span class="nc bnc" id="L251" title="All 4 branches missed.">        return connection != null &amp;&amp; connected;</span>
+    }
+
+    private void log(String message, Object... args) {
+<span class="fc" id="L255">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="fc" id="L256">        logger.info(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="fc" id="L257">    }</span>
+
+    private void debug(String message, Object... args) {
+<span class="nc" id="L260">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L261">        logger.debug(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L262">    }</span>
+
+    private void warn(String message, Object... args) {
+<span class="fc" id="L265">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="fc" id="L266">        logger.warn(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="fc" id="L267">    }</span>
+
+    private void error(String message, Object... args) {
+<span class="nc" id="L270">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L271">        logger.error(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L272">    }</span>
+
+    private void trace(String message, Object... args) {
+<span class="nc" id="L275">        message = MessageFormatter.arrayFormat(message, args).getMessage();</span>
+<span class="nc" id="L276">        logger.trace(&quot;[{}] {}&quot;, pid, message);</span>
+<span class="nc" id="L277">    }</span>
+
+    public void shutdown() {
+<span class="nc" id="L280">        connected = false;</span>
+<span class="nc" id="L281">        cancelReconnect.set(true);</span>
+<span class="nc" id="L282">        logger.info(&quot;shutting down &quot;);</span>
+<span class="nc" id="L283">        log(&quot;Saving buffers.&quot;);</span>
+<span class="nc" id="L284">        buffer.persist();</span>
+<span class="nc" id="L285">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

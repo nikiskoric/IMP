@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.driver.ehz.test.EhzDriverTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:43:12" hostname="TEA" time="0.033">
+  <properties/>
+  <testcase name="linux_symlinkResolution()" classname="org.openmuc.framework.driver.ehz.test.EhzDriverTest" time="0.028"/>
+  <testcase name="testMessage()" classname="org.openmuc.framework.driver.ehz.test.EhzDriverTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

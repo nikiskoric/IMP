@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.datalogger.ascii.test.LogFileReaderTestBrokenFile" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:42:38" hostname="TEA" time="0.226">
+  <properties/>
+  <testcase name="tc203_no_file_in_directory()" classname="org.openmuc.framework.datalogger.ascii.test.LogFileReaderTestBrokenFile" time="0.176"/>
+  <testcase name="tc200_logfile_does_not_exist()" classname="org.openmuc.framework.datalogger.ascii.test.LogFileReaderTestBrokenFile" time="0.049"/>
+  <system-out><![CDATA[11:42:38.723 [Test worker] ERROR org.openmuc.framework.datalogger.ascii.utils.LoggerUtils - No file found in C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\datalogger\ascii/test/
+### Begin test tc200_logfile_does_not_exist
+11:42:38.794 [Test worker] WARN org.openmuc.framework.datalogger.ascii.utils.LoggerUtils - Requested logfile: 'C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\datalogger\ascii\test\20131201_1000.dat' not found.
+tc200_logfile_does_not_exist records = 0 (0 expected)
+tearing down
+Method deleteRecursive(): Path does not exists. C:\Users\tdmar\Documents\OneDrive\Desktop\Projekat\OpenMUC\openmuc\projects\datalogger\ascii\test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

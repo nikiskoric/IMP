@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IecConnection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">openmuc-driver-ehz</a> &gt; <a href="index.source.html" class="el_package">org.openmuc.framework.driver.ehz</a> &gt; <span class="el_source">IecConnection.java</span></div><h1>IecConnection.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011-2024 Fraunhofer ISE
+ *
+ * This file is part of OpenMUC.
+ * For more information visit http://www.openmuc.org
+ *
+ * OpenMUC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenMUC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenMUC. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ *
+ */
+
+package org.openmuc.framework.driver.ehz;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.openmuc.framework.config.ChannelScanInfo;
+import org.openmuc.framework.data.Value;
+import org.openmuc.framework.data.ValueType;
+import org.openmuc.framework.driver.ehz.iec62056_21.DataSet;
+import org.openmuc.framework.driver.ehz.iec62056_21.IecReceiver;
+import org.openmuc.framework.driver.ehz.iec62056_21.ModeDMessage;
+import org.openmuc.framework.driver.spi.ChannelRecordContainer;
+import org.openmuc.framework.driver.spi.ConnectionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class IecConnection extends GeneralConnection {
+
+    private IecReceiver receiver;
+
+<span class="nc" id="L46">    private static Logger logger = LoggerFactory.getLogger(IecConnection.class);</span>
+
+<span class="nc" id="L48">    public IecConnection(String deviceAddress, int timeout) throws ConnectionException {</span>
+        try {
+<span class="nc" id="L50">            receiver = new IecReceiver(deviceAddress);</span>
+<span class="nc" id="L51">        } catch (Exception e) {</span>
+<span class="nc" id="L52">            throw new ConnectionException(&quot;serial port not found&quot;);</span>
+<span class="nc" id="L53">        }</span>
+<span class="nc" id="L54">    }</span>
+
+    @Override
+    public void disconnect() {
+<span class="nc" id="L58">        receiver.close();</span>
+<span class="nc" id="L59">    }</span>
+
+    @Override
+    public void read(List&lt;ChannelRecordContainer&gt; containers, int timeout) throws ConnectionException {
+<span class="nc" id="L63">        logger.trace(&quot;reading channels&quot;);</span>
+<span class="nc" id="L64">        long timestamp = System.currentTimeMillis();</span>
+        try {
+<span class="nc" id="L66">            byte[] frame = receiver.receiveMessage(timeout);</span>
+<span class="nc" id="L67">            ModeDMessage message = ModeDMessage.parse(frame);</span>
+<span class="nc" id="L68">            List&lt;String&gt; dataSets = message.getDataSets();</span>
+
+<span class="nc" id="L70">            Map&lt;String, Value&gt; values = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            for (String ds : dataSets) {</span>
+<span class="nc" id="L72">                DataSet dataSet = new DataSet(ds);</span>
+<span class="nc" id="L73">                String address = dataSet.getAddress();</span>
+<span class="nc" id="L74">                Value value = dataSet.parseValueAsDouble();</span>
+<span class="nc" id="L75">                values.put(address, value);</span>
+<span class="nc" id="L76">                logger.trace(&quot;{} = {}&quot;, address, value);</span>
+<span class="nc" id="L77">            }</span>
+
+<span class="nc" id="L79">            handleChannelRecordContainer(containers, values, timestamp);</span>
+<span class="nc" id="L80">        } catch (IOException e) {</span>
+<span class="nc" id="L81">            logger.error(&quot;read failed&quot;, e);</span>
+<span class="nc" id="L82">            disconnect();</span>
+<span class="nc" id="L83">            throw new ConnectionException(e);</span>
+<span class="nc" id="L84">        } catch (ParseException e) {</span>
+<span class="nc" id="L85">            logger.error(&quot;parsing failed&quot;, e);</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">    }</span>
+
+    @Override
+    public List&lt;ChannelScanInfo&gt; scanForChannels(int timeout) {
+<span class="nc" id="L91">        List&lt;ChannelScanInfo&gt; channelInfos = new LinkedList&lt;&gt;();</span>
+
+<span class="nc" id="L93">        logger.debug(&quot;scanning channels&quot;);</span>
+        try {
+<span class="nc" id="L95">            byte[] frame = receiver.receiveMessage(timeout);</span>
+<span class="nc" id="L96">            ModeDMessage message = ModeDMessage.parse(frame);</span>
+<span class="nc" id="L97">            List&lt;String&gt; dataSets = message.getDataSets();</span>
+
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            for (String data : dataSets) {</span>
+<span class="nc" id="L100">                DataSet dataSet = new DataSet(data);</span>
+<span class="nc" id="L101">                String channelAddress = dataSet.getAddress();</span>
+<span class="nc" id="L102">                String description = &quot;Current value: &quot; + dataSet.parseValueAsDouble() + dataSet.getUnit();</span>
+<span class="nc" id="L103">                ValueType valueType = ValueType.DOUBLE;</span>
+<span class="nc" id="L104">                Integer valueTypeLength = null;</span>
+<span class="nc" id="L105">                Boolean readable = true;</span>
+<span class="nc" id="L106">                Boolean writable = false;</span>
+<span class="nc" id="L107">                ChannelScanInfo channelInfo = new ChannelScanInfo(channelAddress, description, valueType,</span>
+                        valueTypeLength, readable, writable);
+<span class="nc" id="L109">                channelInfos.add(channelInfo);</span>
+<span class="nc" id="L110">            }</span>
+
+<span class="nc" id="L112">        } catch (ParseException | IOException e) {</span>
+<span class="nc" id="L113">            logger.warn(&quot;read failed&quot;, e);</span>
+<span class="nc" id="L114">        }</span>
+<span class="nc" id="L115">        return channelInfos;</span>
+    }
+
+    @Override
+    public boolean works() {
+        try {
+<span class="nc" id="L121">            byte[] frame = receiver.receiveMessage(1000);</span>
+<span class="nc" id="L122">            ModeDMessage.parse(frame);</span>
+<span class="nc" id="L123">        } catch (IOException | ParseException e) {</span>
+<span class="nc" id="L124">            return false;</span>
+<span class="nc" id="L125">        }</span>
+<span class="nc" id="L126">        return true;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

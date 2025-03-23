@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.openmuc.framework.datalogger.ascii.test.LoggerUtilsTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-02-10T10:42:40" hostname="TEA" time="0.015">
+  <properties/>
+  <testcase name="tc_502_test_getFilename()" classname="org.openmuc.framework.datalogger.ascii.test.LoggerUtilsTest" time="0.0"/>
+  <testcase name="tc_501_test_getFilenames()" classname="org.openmuc.framework.datalogger.ascii.test.LoggerUtilsTest" time="0.002"/>
+  <testcase name="tc_503_test_fillUpFileWithErrorCode()" classname="org.openmuc.framework.datalogger.ascii.test.LoggerUtilsTest" time="0.008"/>
+  <testcase name="tc_504_test_getDateOfFile()" classname="org.openmuc.framework.datalogger.ascii.test.LoggerUtilsTest" time="0.001"/>
+  <testcase name="tc_505_test_findLatestValue()" classname="org.openmuc.framework.datalogger.ascii.test.LoggerUtilsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

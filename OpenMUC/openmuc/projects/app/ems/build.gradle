@@ -1,0 +1,48 @@
+def projectName = "EMS"
+
+dependencies {
+    implementation project(':openmuc-core-api')
+    implementation project(':openmuc-core-spi')
+    implementation project(':openmuc-core-datamanager')
+    implementation project(':openmuc-driver-csv')
+	implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
+      
+    testImplementation project(':openmuc-core-spi')
+    testImplementation project(':openmuc-core-datamanager')
+    testImplementation project(':openmuc-core-datamanager').sourceSets.test.output
+    testImplementation project(':openmuc-driver-csv')
+    testImplementation project(':openmuc-datalogger-ascii')
+    testImplementation project(':openmuc-driver-math')
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: mockitoVersion
+    testImplementation("commons-io:commons-io:2.16.1")
+    
+}
+
+jar {
+    bnd('Bundle-Name': projectName)
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+      url "https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3"
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = projectName
+                description = "OpenMUC Energy Management System."
+            }
+        }
+    }
+}
+
+task demoConfigTest(type: Test){
+    useJUnitPlatform {
+        includeTags 'demoConfigTest'
+    }
+}
